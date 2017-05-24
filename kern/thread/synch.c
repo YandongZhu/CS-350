@@ -196,7 +196,7 @@ void
 lock_acquire(struct lock *lock)
 {
         KASSERT(lock != NULL);
-        //KASSERT(!lock_do_i_hold(lock));
+        KASSERT(!lock_do_i_hold(lock));
         // Write this
         spinlock_acquire(&lock->lk_spin);
         while(lock->hold){
@@ -231,6 +231,7 @@ bool
 lock_do_i_hold(struct lock *lock)
 {
         // Write this
+        KASSERT(lock != NULL);
 
         //(void)lock;  // suppress warning until code gets written
 
