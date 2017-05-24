@@ -197,7 +197,7 @@ void
 lock_acquire(struct lock *lock)
 {
         KASSERT(lock != NULL);
-        KASSERT(lock->owner != curthread);
+        KASSERT(!lock_do_i_hold(lock));
         // Write this
         spinlock_acquire(&lock->lk_spin);
         while(lock->hold){
@@ -218,7 +218,7 @@ lock_release(struct lock *lock)
 {
     // Write this
     KASSERT(lock != NULL);
-    KASSERT(lock->owner == curthread);
+    KASSERT(lock_do_i_hold(lock));
     spinlock_acquire(&lock->lk_spin);
     lock->hold = 0;
     lock->owner = NULL;
