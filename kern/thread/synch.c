@@ -192,11 +192,12 @@ lock_destroy(struct lock *lock)
         kfree(lock);
 }
 
+
 void
 lock_acquire(struct lock *lock)
 {
         KASSERT(lock != NULL);
-        KASSERT(!lock_do_i_hold(lock));
+        KASSERT(lock->owner != curthread);
         // Write this
         spinlock_acquire(&lock->lk_spin);
         while(lock->hold){
@@ -217,7 +218,7 @@ lock_release(struct lock *lock)
 {
     // Write this
     KASSERT(lock != NULL);
-    KASSERT(lock_do_i_hold(lock));
+    KASSERT(lock->owner == curthread);
     spinlock_acquire(&lock->lk_spin);
     lock->hold = 0;
     lock->owner = NULL;
