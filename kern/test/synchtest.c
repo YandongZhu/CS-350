@@ -228,10 +228,6 @@ locktestthread(void *junk, unsigned long num)
 int
 locktest(int nargs, char **args)
 {
-	for (int abcde = 0; abcde < 100; ++i)
-	{
-		/* code */
-	
 	int i, result;
 
 	(void)nargs;
@@ -256,9 +252,7 @@ locktest(int nargs, char **args)
   cleanitems();
 #endif
 	kprintf("Lock test done.\n");
-
 	return 0;
-}
 }
 
 static
