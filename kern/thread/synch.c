@@ -265,7 +265,7 @@ cv_destroy(struct cv *cv)
 {
         KASSERT(cv != NULL);
 
-        
+        wchan_destroy(cv->cv_wc);
         kfree(cv->cv_name);
         kfree(cv);
 }
@@ -276,14 +276,13 @@ cv_wait(struct cv *cv, struct lock *lock)
 
         KASSERT(cv != NULL);
         KASSERT(lock != NULL);
-        KASSERT(!lock_do_i_hold(lock));
+        KASSERT(lock_do_i_hold(lock));
 
         wchan_lock(cv->cv_wc);
-        lock_acquire(lock);
+        //lock_acquire(lock);
         wchan_sleep(cv->cv_wc);
-        lock_release(lock);
-        //(void)cv;    // suppress warning until code gets written
-        //(void)lock;  // suppress warning until code gets written
+        //lock_release(lock);
+
 }
 
 void
