@@ -40,7 +40,7 @@ static struct cv* dirarr[8];
  * 
  */
 
-static enum Position
+static enum Positions
   { 
     northsouth = 0,
     northeast = 1,
@@ -55,6 +55,8 @@ static enum Position
     southeast = 10,
     eastnorth = 11
   };
+
+typedef enum Positions Position;
 
 bool check_right_turn (Position pos){
     if (pos == northwest){
