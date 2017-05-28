@@ -21,7 +21,15 @@
 /*
  * replace this with declarations of any synchronization and other variables you need here
  */
-static struct semaphore *intersectionSem;
+//static struct semaphore *intersectionSem;
+//static struct lock [4];
+static struct lock* control;
+
+static const int increase = 1;
+static const int decrease = -1;
+static volatile int arr[8];
+static struct cv* dirarr[8];
+
 
 
 /* 
@@ -31,14 +39,256 @@ static struct semaphore *intersectionSem;
  * You can use it to initialize synchronization and other variables.
  * 
  */
+
+static enum Position
+  { 
+    northsouth = 0,
+    northeast = 1,
+    eastwest = 2,
+    eastsouth = 3,
+    southnorth = 4,
+    southwest = 5,
+    westeast = 6,
+    westnorth = 7,
+    northwest = 8,
+    westsouth = 9,
+    southeast = 10,
+    eastnorth = 11
+  };
+
+bool check_right_turn (Position pos){
+    if (pos == northwest){
+      return true;
+    }
+    if (pos == westsouth){
+      return true;
+    }
+    if (pos == southeast){
+      return true;
+    }
+    if (pos == eastnorth){
+      return true;
+    }
+    return false;
+}
+
+
+Position transite(Direction origin, Direction destination){
+  if (origin == north && destination == west){
+    return northwest;
+  }
+  else if (origin == north && destination == south){
+    return northsouth;
+  }
+  else if (origin == north && destination == east){
+    return northsouth;
+  }
+  else if (origin == west && destination == north){
+    return westnorth;
+  }
+  else if (origin == west && destination == east){
+    return westeast;
+  }
+  else if (origin == west && destination == south){
+    return westsouth;
+  }
+  else if (origin == south && destination == west){
+    return southwest;
+  }
+  else if (origin == south && destination == north){
+    return southnorth;
+  }
+  else if (origin == south && destination == east){
+    return southeast;
+  }
+  else if (origin == east && destination == north){
+    return eastnorth;
+  }
+  else if (origin == east && destination == west){
+    return eastwest;
+  }
+  else if (origin == east && destination == south){
+    return eastsouth;
+  }
+  else{
+    panic("cant find the direction");
+  }
+}
+
+void change(Position pos, int num){
+  if (pos == northsouth)
+  {
+    arr[2] += num;
+    arr[3] += num;
+    arr[5] += num;
+    arr[6] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[2], control);
+      cv_boradcast(dirarr[3], control);
+      cv_boradcast(dirarr[5], control);
+      cv_boradcast(dirarr[6], control);
+      cv_boradcast(dirarr[7], control);
+    }
+  }
+  else if (pos == northeast)
+  {
+    arr[2] += num;
+    arr[3] += num;
+    arr[4] += num;
+    arr[5] += num;
+    arr[6] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[2], control);
+      cv_boradcast(dirarr[3], control);
+      cv_boradcast(dirarr[4], control);
+      cv_boradcast(dirarr[5], control);
+      cv_boradcast(dirarr[6], control);
+      cv_boradcast(dirarr[7], control);
+    }
+  }
+  else if (pos == eastwest)
+  {
+    arr[0] += num;
+    arr[1] += num;
+    arr[4] += num;
+    arr[5] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[0], control);
+      cv_boradcast(dirarr[1], control);
+      cv_boradcast(dirarr[4], control);
+      cv_boradcast(dirarr[5], control);
+      cv_boradcast(dirarr[7], control);
+    }
+  }
+  else if (pos == eastsouth)
+  {
+    arr[0] += num;
+    arr[1] += num;
+    arr[4] += num;
+    arr[5] += num;
+    arr[6] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[0], control);
+      cv_boradcast(dirarr[1], control);
+      cv_boradcast(dirarr[4], control);
+      cv_boradcast(dirarr[5], control);
+      cv_boradcast(dirarr[6], control);
+      cv_boradcast(dirarr[7], control);
+    }
+  }
+  else if (pos == southnorth)
+  {
+    arr[1] += num;
+    arr[2] += num;
+    arr[3] += num;
+    arr[6] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[1], control);
+      cv_boradcast(dirarr[2], control);
+      cv_boradcast(dirarr[3], control);
+      cv_boradcast(dirarr[6], control);
+      cv_boradcast(dirarr[7], control);
+    }
+  }
+  else if (pos == southwest)
+  {
+    arr[0] += num;
+    arr[1] += num;
+    arr[2] += num;
+    arr[3] += num;
+    arr[6] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[0], control);
+      cv_boradcast(dirarr[1], control);
+      cv_boradcast(dirarr[2], control);
+      cv_boradcast(dirarr[3], control);
+      cv_boradcast(dirarr[6], control);
+      cv_boradcast(dirarr[7], control);
+    }
+  }
+  else if (pos == westeast)
+  {
+    arr[0] += num;
+    arr[1] += num;
+    arr[3] += num;
+    arr[4] += num;
+    arr[5] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[0], control);
+      cv_boradcast(dirarr[1], control);
+      cv_boradcast(dirarr[3], control);
+      cv_boradcast(dirarr[4], control);
+      cv_boradcast(dirarr[5], control);
+    }
+  }
+  else if (pos == westnorth)
+  {
+    arr[0] += num;
+    arr[1] += num;
+    arr[2] += num;
+    arr[3] += num;
+    arr[4] += num;
+    arr[5] += num;
+    if (num == -1)
+    {
+      cv_boradcast(dirarr[0], control);
+      cv_boradcast(dirarr[1], control);
+      cv_boradcast(dirarr[2], control);
+      cv_boradcast(dirarr[3], control);
+      cv_boradcast(dirarr[4], control);
+      cv_boradcast(dirarr[5], control);
+    }
+  }
+  else {
+    panic("cant get the correct position");
+  }
+}
+
+
 void
 intersection_sync_init(void)
 {
   /* replace this default implementation with your own implementation */
 
-  intersectionSem = sem_create("intersectionSem",1);
-  if (intersectionSem == NULL) {
-    panic("could not create intersection semaphore");
+  //intersectionSem = sem_create("intersectionSem",1);
+  //if (intersectionSem == NULL) {
+  //  panic("could not create intersection semaphore");
+  //
+
+  control = lock_create("control");
+  if(control == NULL) {
+    panic("lock cant be create");
+  }
+  dirarr[0] = cv_create("northsouth");
+  dirarr[1] = cv_create("northeast");
+  dirarr[2] = cv_create("eastwest");
+  dirarr[3] = cv_create("eastsouth");
+  dirarr[4] = cv_create("southnorth");
+  dirarr[5] = cv_create("southwest");
+  dirarr[6] = cv_create("westeast");
+  dirarr[7] = cv_create("westnorth");
+  for (int i = 0; i < 8; ++i)
+  {
+    if (dirarr[i] == NULL)
+    {
+      panic("cv cant be create");
+    }
+  }
+  for(int i = 0; i < 8; ++i){
+    arr[i] = 0;
   }
   return;
 }
@@ -54,8 +304,19 @@ void
 intersection_sync_cleanup(void)
 {
   /* replace this default implementation with your own implementation */
-  KASSERT(intersectionSem != NULL);
-  sem_destroy(intersectionSem);
+  //KASSERT(intersectionSem != NULL);
+  KASSERT(control != NULL);
+  for (int i = 0; i < 8; ++i)
+  {
+    KASSERT(dirarr[i] != NULL);
+  }
+
+  //sem_destroy(intersectionSem);
+  lock_destroy(control);
+  for (int i = 0; i < 8; ++i)
+  {
+    cv_destroy(dirarr[i]);
+  }
 }
 
 
@@ -72,14 +333,29 @@ intersection_sync_cleanup(void)
  * return value: none
  */
 
+
+
 void
 intersection_before_entry(Direction origin, Direction destination) 
 {
   /* replace this default implementation with your own implementation */
-  (void)origin;  /* avoid compiler complaint about unused parameter */
-  (void)destination; /* avoid compiler complaint about unused parameter */
-  KASSERT(intersectionSem != NULL);
-  P(intersectionSem);
+  //(void)origin;  /* avoid compiler complaint about unused parameter */
+  //(void)destination; /* avoid compiler complaint about unused parameter */
+  KASSERT(control != NULL);
+
+  lock_acquire(control);
+  Position cur = transite(origin, destination);
+  bool right = check_right_turn(cur);
+  if (right){
+  }
+  else{
+    while (arr[cur]){
+      cv_wait(dirarr[cur], control);
+    }
+    change(cur, increase);
+  }
+  lock_release(control);
+  //P(intersectionSem);
 }
 
 
@@ -98,8 +374,14 @@ void
 intersection_after_exit(Direction origin, Direction destination) 
 {
   /* replace this default implementation with your own implementation */
-  (void)origin;  /* avoid compiler complaint about unused parameter */
-  (void)destination; /* avoid compiler complaint about unused parameter */
-  KASSERT(intersectionSem != NULL);
-  V(intersectionSem);
+  //(void)origin;  /* avoid compiler complaint about unused parameter */
+  //(void)destination; /* avoid compiler complaint about unused parameter */
+  KASSERT(control != NULL);
+
+  lock_acquire(control);
+  Position cur = transite(origin, destination);
+  change(cur, decrease);
+  lock_release(control);
+
+  //V(intersectionSem);
 }
