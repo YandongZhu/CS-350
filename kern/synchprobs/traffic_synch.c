@@ -27,7 +27,7 @@ static struct lock* control;
 
 static const int increase = 1;
 static const int decrease = -1;
-static volatile int arr[8];
+static volatile int arr[12];
 static struct cv* dirarr[8];
 
 
@@ -256,7 +256,7 @@ static void change(Position pos, int num){
     }
   }
   else {
-    panic("cant get the correct position");
+    //panic("cant get the correct position");
   }
 }
 
@@ -290,7 +290,7 @@ intersection_sync_init(void)
       panic("cv cant be create");
     }
   }
-  for(int i = 0; i < 8; ++i){
+  for(int i = 0; i < 12; ++i){
     arr[i] = 0;
   }
   return;
@@ -348,15 +348,13 @@ intersection_before_entry(Direction origin, Direction destination)
 
   lock_acquire(control);
   Position cur = transite(origin, destination);
-  bool right = check_right_turn(cur);
-  if (right){
-  }
-  else{
-    while (arr[cur]){
+  //bool right = check_right_turn(cur);
+  //if (right){
+  //}
+  while (arr[cur]){
       cv_wait(dirarr[cur], control);
     }
     change(cur, increase);
-  }
   lock_release(control);
   //P(intersectionSem);
 }
