@@ -323,10 +323,10 @@ intersection_sync_init(void)
   dirarr[5] = cv_create("southwest");
   dirarr[6] = cv_create("westeast");
   dirarr[7] = cv_create("westnorth");
-  dirarr[7] = cv_create("northwest");
-  dirarr[7] = cv_create("westsouth");
-  dirarr[7] = cv_create("southeast");
-  dirarr[7] = cv_create("eastnorth");
+  dirarr[8] = cv_create("northwest");
+  dirarr[9] = cv_create("westsouth");
+  dirarr[10] = cv_create("southeast");
+  dirarr[11] = cv_create("eastnorth");
 
   for (int i = 0; i < 8; ++i)
   {
