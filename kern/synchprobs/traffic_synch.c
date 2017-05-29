@@ -56,9 +56,9 @@ enum Positions
     eastnorth = 11
   };
 
-typedef static enum Positions Position;
+typedef enum Positions Position;
 
-bool check_right_turn (Position pos){
+static bool check_right_turn (Position pos){
     if (pos == northwest){
       return true;
     }
@@ -75,7 +75,7 @@ bool check_right_turn (Position pos){
 }
 
 
-Position transite(Direction origin, Direction destination){
+static Position transite(Direction origin, Direction destination){
   if (origin == north && destination == west){
     return northwest;
   }
@@ -117,7 +117,7 @@ Position transite(Direction origin, Direction destination){
   }
 }
 
-void change(Position pos, int num){
+static void change(Position pos, int num){
   if (pos == northsouth)
   {
     arr[2] += num;
@@ -127,11 +127,11 @@ void change(Position pos, int num){
     arr[7] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[2], control);
-      cv_boradcast(dirarr[3], control);
-      cv_boradcast(dirarr[5], control);
-      cv_boradcast(dirarr[6], control);
-      cv_boradcast(dirarr[7], control);
+      cv_broadcast(dirarr[2], control);
+      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[6], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else if (pos == northeast)
@@ -144,12 +144,12 @@ void change(Position pos, int num){
     arr[7] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[2], control);
-      cv_boradcast(dirarr[3], control);
-      cv_boradcast(dirarr[4], control);
-      cv_boradcast(dirarr[5], control);
-      cv_boradcast(dirarr[6], control);
-      cv_boradcast(dirarr[7], control);
+      cv_broadcast(dirarr[2], control);
+      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[4], control);
+      cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[6], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else if (pos == eastwest)
@@ -161,11 +161,11 @@ void change(Position pos, int num){
     arr[7] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[0], control);
-      cv_boradcast(dirarr[1], control);
-      cv_boradcast(dirarr[4], control);
-      cv_boradcast(dirarr[5], control);
-      cv_boradcast(dirarr[7], control);
+      cv_broadcast(dirarr[0], control);
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[4], control);
+      cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else if (pos == eastsouth)
@@ -178,12 +178,12 @@ void change(Position pos, int num){
     arr[7] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[0], control);
-      cv_boradcast(dirarr[1], control);
-      cv_boradcast(dirarr[4], control);
-      cv_boradcast(dirarr[5], control);
-      cv_boradcast(dirarr[6], control);
-      cv_boradcast(dirarr[7], control);
+      cv_broadcast(dirarr[0], control);
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[4], control);
+      cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[6], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else if (pos == southnorth)
@@ -195,11 +195,11 @@ void change(Position pos, int num){
     arr[7] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[1], control);
-      cv_boradcast(dirarr[2], control);
-      cv_boradcast(dirarr[3], control);
-      cv_boradcast(dirarr[6], control);
-      cv_boradcast(dirarr[7], control);
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[2], control);
+      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[6], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else if (pos == southwest)
@@ -212,12 +212,12 @@ void change(Position pos, int num){
     arr[7] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[0], control);
-      cv_boradcast(dirarr[1], control);
-      cv_boradcast(dirarr[2], control);
-      cv_boradcast(dirarr[3], control);
-      cv_boradcast(dirarr[6], control);
-      cv_boradcast(dirarr[7], control);
+      cv_broadcast(dirarr[0], control);
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[2], control);
+      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[6], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else if (pos == westeast)
@@ -229,11 +229,11 @@ void change(Position pos, int num){
     arr[5] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[0], control);
-      cv_boradcast(dirarr[1], control);
-      cv_boradcast(dirarr[3], control);
-      cv_boradcast(dirarr[4], control);
-      cv_boradcast(dirarr[5], control);
+      cv_broadcast(dirarr[0], control);
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[4], control);
+      cv_broadcast(dirarr[5], control);
     }
   }
   else if (pos == westnorth)
@@ -246,12 +246,12 @@ void change(Position pos, int num){
     arr[5] += num;
     if (num == -1)
     {
-      cv_boradcast(dirarr[0], control);
-      cv_boradcast(dirarr[1], control);
-      cv_boradcast(dirarr[2], control);
-      cv_boradcast(dirarr[3], control);
-      cv_boradcast(dirarr[4], control);
-      cv_boradcast(dirarr[5], control);
+      cv_broadcast(dirarr[0], control);
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[2], control);
+      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[4], control);
+      cv_broadcast(dirarr[5], control);
     }
   }
   else {
