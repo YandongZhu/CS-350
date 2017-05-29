@@ -114,6 +114,7 @@ static Position transite(Direction origin, Direction destination){
   }
   else{
     panic("cant find the direction");
+    return northwest;
   }
 }
 
