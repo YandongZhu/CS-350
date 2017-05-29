@@ -58,7 +58,7 @@ enum Positions
 
 typedef enum Positions Position;
 
-static bool check_right_turn (Position pos){
+/*static bool check_right_turn (Position pos){
     if (pos == northwest){
       return true;
     }
@@ -72,7 +72,7 @@ static bool check_right_turn (Position pos){
       return true;
     }
     return false;
-}
+}*/
 
 
 static Position transite(Direction origin, Direction destination){
