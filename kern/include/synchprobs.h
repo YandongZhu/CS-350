@@ -9,7 +9,7 @@ enum Directions
     south = 2,
     west = 3
   };
-typedef static enum Directions Direction;
+typedef enum Directions Direction;
 
 /* student-implemented functions for the road intersection problem */
 
