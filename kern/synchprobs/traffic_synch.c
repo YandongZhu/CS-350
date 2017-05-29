@@ -67,7 +67,7 @@ static Position transite(Direction origin, Direction destination){
     return northsouth;
   }
   else if (origin == north && destination == east){
-    return northsouth;
+    return northeast;
   }
   else if (origin == west && destination == north){
     return westnorth;
@@ -399,7 +399,7 @@ intersection_before_entry(Direction origin, Direction destination)
   while (arr[cur]){
       cv_wait(dirarr[cur], control);
     }
-    change(cur, increase);
+  change(cur, increase);
   lock_release(control);
   //P(intersectionSem);
 }
