@@ -28,7 +28,7 @@ static struct lock* control;
 static const int increase = 1;
 static const int decrease = -1;
 static volatile int arr[12];
-static struct cv* dirarr[8];
+static struct cv* dirarr[12];
 
 
 
@@ -53,27 +53,11 @@ enum Positions
     northwest = 8,
     westsouth = 9,
     southeast = 10,
-    eastnorth = 11
+    eastnorth = 11,
+    error = 12
   };
 
 typedef enum Positions Position;
-
-/*static bool check_right_turn (Position pos){
-    if (pos == northwest){
-      return true;
-    }
-    if (pos == westsouth){
-      return true;
-    }
-    if (pos == southeast){
-      return true;
-    }
-    if (pos == eastnorth){
-      return true;
-    }
-    return false;
-}*/
-
 
 static Position transite(Direction origin, Direction destination){
   if (origin == north && destination == west){
@@ -114,7 +98,7 @@ static Position transite(Direction origin, Direction destination){
   }
   else{
     panic("cant find the direction");
-    return northwest;
+    return error;
   }
 }
 
@@ -126,6 +110,7 @@ static void change(Position pos, int num){
     arr[5] += num;
     arr[6] += num;
     arr[7] += num;
+    arr[9] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[2], control);
@@ -133,6 +118,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[5], control);
       cv_broadcast(dirarr[6], control);
       cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[9], control);
     }
   }
   else if (pos == northeast)
@@ -143,6 +129,7 @@ static void change(Position pos, int num){
     arr[5] += num;
     arr[6] += num;
     arr[7] += num;
+    arr[10] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[2], control);
@@ -151,6 +138,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[5], control);
       cv_broadcast(dirarr[6], control);
       cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[10], control);
     }
   }
   else if (pos == eastwest)
@@ -160,6 +148,7 @@ static void change(Position pos, int num){
     arr[4] += num;
     arr[5] += num;
     arr[7] += num;
+    arr[8] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[0], control);
@@ -167,6 +156,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[4], control);
       cv_broadcast(dirarr[5], control);
       cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[8], control);
     }
   }
   else if (pos == eastsouth)
@@ -177,6 +167,7 @@ static void change(Position pos, int num){
     arr[5] += num;
     arr[6] += num;
     arr[7] += num;
+    arr[9] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[0], control);
@@ -185,6 +176,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[5], control);
       cv_broadcast(dirarr[6], control);
       cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[9], control);
     }
   }
   else if (pos == southnorth)
@@ -194,6 +186,7 @@ static void change(Position pos, int num){
     arr[3] += num;
     arr[6] += num;
     arr[7] += num;
+    arr[11] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[1], control);
@@ -201,6 +194,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[3], control);
       cv_broadcast(dirarr[6], control);
       cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[11], control);
     }
   }
   else if (pos == southwest)
@@ -211,6 +205,7 @@ static void change(Position pos, int num){
     arr[3] += num;
     arr[6] += num;
     arr[7] += num;
+    arr[8] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[0], control);
@@ -219,6 +214,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[3], control);
       cv_broadcast(dirarr[6], control);
       cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[8], control);
     }
   }
   else if (pos == westeast)
@@ -228,6 +224,7 @@ static void change(Position pos, int num){
     arr[3] += num;
     arr[4] += num;
     arr[5] += num;
+    arr[10] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[0], control);
@@ -235,6 +232,7 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[3], control);
       cv_broadcast(dirarr[4], control);
       cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[10], control);
     }
   }
   else if (pos == westnorth)
@@ -245,6 +243,7 @@ static void change(Position pos, int num){
     arr[3] += num;
     arr[4] += num;
     arr[5] += num;
+    arr[11] += num;
     if (num == -1)
     {
       cv_broadcast(dirarr[0], control);
@@ -253,10 +252,51 @@ static void change(Position pos, int num){
       cv_broadcast(dirarr[3], control);
       cv_broadcast(dirarr[4], control);
       cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[11], control);
+    }
+  }
+  else if (pos == northwest)
+  {
+    arr[2] += num;
+    arr[5] += num;
+    if (num == -1)
+    {
+      cv_broadcast(dirarr[2], control);
+      cv_broadcast(dirarr[5], control);
+    }
+  }
+  else if (pos == westsouth)
+  {
+    arr[0] += num;
+    arr[3] += num;
+    if (num == -1)
+    {
+      cv_broadcast(dirarr[0], control);
+      cv_broadcast(dirarr[3], control);
+    }
+  }
+  else if (pos == southeast)
+  {
+    arr[1] += num;
+    arr[6] += num;
+    if (num == -1)
+    {
+      cv_broadcast(dirarr[1], control);
+      cv_broadcast(dirarr[6], control);
+    }
+  }
+  else if (pos == eastnorth)
+  {
+    arr[4] += num;
+    arr[7] += num;
+    if (num == -1)
+    {
+      cv_broadcast(dirarr[4], control);
+      cv_broadcast(dirarr[7], control);
     }
   }
   else {
-    //panic("cant get the correct position");
+    panic("cant get the correct position");
   }
 }
 
@@ -283,6 +323,11 @@ intersection_sync_init(void)
   dirarr[5] = cv_create("southwest");
   dirarr[6] = cv_create("westeast");
   dirarr[7] = cv_create("westnorth");
+  dirarr[7] = cv_create("northwest");
+  dirarr[7] = cv_create("westsouth");
+  dirarr[7] = cv_create("southeast");
+  dirarr[7] = cv_create("eastnorth");
+
   for (int i = 0; i < 8; ++i)
   {
     if (dirarr[i] == NULL)
@@ -309,14 +354,14 @@ intersection_sync_cleanup(void)
   /* replace this default implementation with your own implementation */
   //KASSERT(intersectionSem != NULL);
   KASSERT(control != NULL);
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 12; ++i)
   {
     KASSERT(dirarr[i] != NULL);
   }
 
   //sem_destroy(intersectionSem);
   lock_destroy(control);
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 12; ++i)
   {
     cv_destroy(dirarr[i]);
   }
