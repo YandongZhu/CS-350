@@ -105,194 +105,194 @@ static Position transite(Direction origin, Direction destination){
 static void change(Position pos, int num){
   if (pos == northsouth)
   {
-    arr[2] += num;
-    arr[3] += num;
-    arr[5] += num;
-    arr[6] += num;
-    arr[7] += num;
-    arr[9] += num;
+    arr[eastwest] += num;
+    arr[eastsouth] += num;
+    arr[southwest] += num;
+    arr[westeast] += num;
+    arr[westnorth] += num;
+    arr[westsouth] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[2], control);
-      cv_broadcast(dirarr[3], control);
-      cv_broadcast(dirarr[5], control);
-      cv_broadcast(dirarr[6], control);
-      cv_broadcast(dirarr[7], control);
-      cv_broadcast(dirarr[9], control);
+      cv_broadcast(dirarr[eastwest], control);
+      cv_broadcast(dirarr[eastsouth], control);
+      cv_broadcast(dirarr[southwest], control);
+      cv_broadcast(dirarr[westeast], control);
+      cv_broadcast(dirarr[westnorth], control);
+      cv_broadcast(dirarr[westsouth], control);
     }
   }
   else if (pos == northeast)
   {
-    arr[2] += num;
-    arr[3] += num;
-    arr[4] += num;
-    arr[5] += num;
-    arr[6] += num;
-    arr[7] += num;
-    arr[10] += num;
+    arr[eastwest] += num;
+    arr[eastsouth] += num;
+    arr[southnorth] += num;
+    arr[southwest] += num;
+    arr[westeast] += num;
+    arr[westnorth] += num;
+    arr[southeast] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[2], control);
-      cv_broadcast(dirarr[3], control);
-      cv_broadcast(dirarr[4], control);
-      cv_broadcast(dirarr[5], control);
-      cv_broadcast(dirarr[6], control);
-      cv_broadcast(dirarr[7], control);
-      cv_broadcast(dirarr[10], control);
+      cv_broadcast(dirarr[eastwest], control);
+      cv_broadcast(dirarr[eastsouth], control);
+      cv_broadcast(dirarr[southnorth], control);
+      cv_broadcast(dirarr[southwest], control);
+      cv_broadcast(dirarr[westeast], control);
+      cv_broadcast(dirarr[westnorth], control);
+      cv_broadcast(dirarr[southeast], control);
     }
   }
   else if (pos == eastwest)
   {
-    arr[0] += num;
-    arr[1] += num;
-    arr[4] += num;
-    arr[5] += num;
-    arr[7] += num;
-    arr[8] += num;
+    arr[northsouth] += num;
+    arr[northeast] += num;
+    arr[southnorth] += num;
+    arr[southwest] += num;
+    arr[westnorth] += num;
+    arr[northwest] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[0], control);
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[4], control);
-      cv_broadcast(dirarr[5], control);
-      cv_broadcast(dirarr[7], control);
-      cv_broadcast(dirarr[8], control);
+      cv_broadcast(dirarr[northsouth], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[southnorth], control);
+      cv_broadcast(dirarr[southwest], control);
+      cv_broadcast(dirarr[westnorth], control);
+      cv_broadcast(dirarr[northwest], control);
     }
   }
   else if (pos == eastsouth)
   {
-    arr[0] += num;
-    arr[1] += num;
-    arr[4] += num;
-    arr[5] += num;
-    arr[6] += num;
-    arr[7] += num;
-    arr[9] += num;
+    arr[northsouth] += num;
+    arr[northeast] += num;
+    arr[southnorth] += num;
+    arr[southwest] += num;
+    arr[westeast] += num;
+    arr[westnorth] += num;
+    arr[westsouth] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[0], control);
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[4], control);
-      cv_broadcast(dirarr[5], control);
-      cv_broadcast(dirarr[6], control);
-      cv_broadcast(dirarr[7], control);
-      cv_broadcast(dirarr[9], control);
+      cv_broadcast(dirarr[northsouth], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[southnorth], control);
+      cv_broadcast(dirarr[southwest], control);
+      cv_broadcast(dirarr[westeast], control);
+      cv_broadcast(dirarr[westnorth], control);
+      cv_broadcast(dirarr[westsouth], control);
     }
   }
   else if (pos == southnorth)
   {
-    arr[1] += num;
-    arr[2] += num;
-    arr[3] += num;
-    arr[6] += num;
-    arr[7] += num;
-    arr[11] += num;
+    arr[northeast] += num;
+    arr[eastwest] += num;
+    arr[eastsouth] += num;
+    arr[westeast] += num;
+    arr[westnorth] += num;
+    arr[eastnorth] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[2], control);
-      cv_broadcast(dirarr[3], control);
-      cv_broadcast(dirarr[6], control);
-      cv_broadcast(dirarr[7], control);
-      cv_broadcast(dirarr[11], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[eastwest], control);
+      cv_broadcast(dirarr[eastsouth], control);
+      cv_broadcast(dirarr[westeast], control);
+      cv_broadcast(dirarr[westnorth], control);
+      cv_broadcast(dirarr[eastnorth], control);
     }
   }
   else if (pos == southwest)
   {
-    arr[0] += num;
-    arr[1] += num;
-    arr[2] += num;
-    arr[3] += num;
-    arr[6] += num;
-    arr[7] += num;
-    arr[8] += num;
+    arr[northsouth] += num;
+    arr[northeast] += num;
+    arr[eastwest] += num;
+    arr[eastsouth] += num;
+    arr[westeast] += num;
+    arr[westnorth] += num;
+    arr[northwest] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[0], control);
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[2], control);
-      cv_broadcast(dirarr[3], control);
-      cv_broadcast(dirarr[6], control);
-      cv_broadcast(dirarr[7], control);
-      cv_broadcast(dirarr[8], control);
+      cv_broadcast(dirarr[northsouth], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[eastwest], control);
+      cv_broadcast(dirarr[eastsouth], control);
+      cv_broadcast(dirarr[westeast], control);
+      cv_broadcast(dirarr[westnorth], control);
+      cv_broadcast(dirarr[northwest], control);
     }
   }
   else if (pos == westeast)
   {
-    arr[0] += num;
-    arr[1] += num;
-    arr[3] += num;
-    arr[4] += num;
-    arr[5] += num;
-    arr[10] += num;
+    arr[northsouth] += num;
+    arr[northeast] += num;
+    arr[eastsouth] += num;
+    arr[southnorth] += num;
+    arr[southwest] += num;
+    arr[southeast] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[0], control);
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[3], control);
-      cv_broadcast(dirarr[4], control);
-      cv_broadcast(dirarr[5], control);
-      cv_broadcast(dirarr[10], control);
+      cv_broadcast(dirarr[northsouth], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[eastsouth], control);
+      cv_broadcast(dirarr[southnorth], control);
+      cv_broadcast(dirarr[southwest], control);
+      cv_broadcast(dirarr[southeast], control);
     }
   }
   else if (pos == westnorth)
   {
-    arr[0] += num;
-    arr[1] += num;
-    arr[2] += num;
-    arr[3] += num;
-    arr[4] += num;
-    arr[5] += num;
-    arr[11] += num;
+    arr[northsouth] += num;
+    arr[northeast] += num;
+    arr[eastwest] += num;
+    arr[eastsouth] += num;
+    arr[southnorth] += num;
+    arr[southwest] += num;
+    arr[eastnorth] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[0], control);
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[2], control);
-      cv_broadcast(dirarr[3], control);
-      cv_broadcast(dirarr[4], control);
-      cv_broadcast(dirarr[5], control);
-      cv_broadcast(dirarr[11], control);
+      cv_broadcast(dirarr[northsouth], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[eastwest], control);
+      cv_broadcast(dirarr[eastsouth], control);
+      cv_broadcast(dirarr[southnorth], control);
+      cv_broadcast(dirarr[southwest], control);
+      cv_broadcast(dirarr[eastnorth], control);
     }
   }
   else if (pos == northwest)
   {
-    arr[2] += num;
-    arr[5] += num;
+    arr[eastwest] += num;
+    arr[southwest] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[2], control);
-      cv_broadcast(dirarr[5], control);
+      cv_broadcast(dirarr[eastwest], control);
+      cv_broadcast(dirarr[southwest], control);
     }
   }
   else if (pos == westsouth)
   {
-    arr[0] += num;
-    arr[3] += num;
+    arr[northsouth] += num;
+    arr[eastsouth] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[0], control);
-      cv_broadcast(dirarr[3], control);
+      cv_broadcast(dirarr[northsouth], control);
+      cv_broadcast(dirarr[eastsouth], control);
     }
   }
   else if (pos == southeast)
   {
-    arr[1] += num;
-    arr[6] += num;
+    arr[northeast] += num;
+    arr[westeast] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[1], control);
-      cv_broadcast(dirarr[6], control);
+      cv_broadcast(dirarr[northeast], control);
+      cv_broadcast(dirarr[westeast], control);
     }
   }
   else if (pos == eastnorth)
   {
-    arr[4] += num;
-    arr[7] += num;
+    arr[southnorth] += num;
+    arr[westnorth] += num;
     if (num == -1)
     {
-      cv_broadcast(dirarr[4], control);
-      cv_broadcast(dirarr[7], control);
+      cv_broadcast(dirarr[southnorth], control);
+      cv_broadcast(dirarr[westnorth], control);
     }
   }
   else {
@@ -315,18 +315,18 @@ intersection_sync_init(void)
   if(control == NULL) {
     panic("lock cant be create");
   }
-  dirarr[0] = cv_create("northsouth");
-  dirarr[1] = cv_create("northeast");
-  dirarr[2] = cv_create("eastwest");
-  dirarr[3] = cv_create("eastsouth");
-  dirarr[4] = cv_create("southnorth");
-  dirarr[5] = cv_create("southwest");
-  dirarr[6] = cv_create("westeast");
-  dirarr[7] = cv_create("westnorth");
-  dirarr[8] = cv_create("northwest");
-  dirarr[9] = cv_create("westsouth");
-  dirarr[10] = cv_create("southeast");
-  dirarr[11] = cv_create("eastnorth");
+  dirarr[northsouth] = cv_create("northsouth");
+  dirarr[northeast] = cv_create("northeast");
+  dirarr[eastwest] = cv_create("eastwest");
+  dirarr[eastsouth] = cv_create("eastsouth");
+  dirarr[southnorth] = cv_create("southnorth");
+  dirarr[southwest] = cv_create("southwest");
+  dirarr[westeast] = cv_create("westeast");
+  dirarr[westnorth] = cv_create("westnorth");
+  dirarr[northwest] = cv_create("northwest");
+  dirarr[westsouth] = cv_create("westsouth");
+  dirarr[southeast] = cv_create("southeast");
+  dirarr[eastnorth] = cv_create("eastnorth");
 
   for (int i = 0; i < 8; ++i)
   {
