@@ -60,10 +60,10 @@ struct proc *kproc;
 //struct lock* pid_control;
 
 #ifdef OPT_A2
-	struct array* reuse_pid;
-	struct array* total_proc;
-	struct cv* pid_cv;
-	struct lock* pid_control;
+	struct array* reuse_pid = NULL;
+	struct array* total_proc = NULL;
+	struct cv* pid_cv = NULL;
+	struct lock* pid_control = NULL;
 	static pid_t pid_count = 1;
 #endif
 
@@ -258,7 +258,16 @@ proc_bootstrap(void)
   if (no_proc_sem == NULL) {
     panic("could not create no_proc_sem semaphore\n");
   }
+  #ifdef OPT_A2
+  	pid_control = lock_create("pid_control");
+  	total_proc = array_create();
+  	reuse_pid = array_create();
+  	pid_cv = cv_create("pid_cv");
+  #endif;
 #endif // UW 
+
+
+
 }
 
 /*

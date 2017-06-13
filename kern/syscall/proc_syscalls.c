@@ -59,7 +59,7 @@ sys_getpid(pid_t *retval)
   /* for now, this is just a stub that always returns a PID of 1 */
   /* you need to fix this to make it work properly */
   #ifdef OPT_A2
-  *retval = curproc->pid;
+  *retval = curproc->p_pid;
   #else
   *retval = 1;
   #endif
@@ -109,7 +109,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   }
 
   // if too many process
-  if (p->pid > PID_MAX)
+  if (p->p_pid > PID_MAX)
   {
     proc_destroy(p);
     return ENPROC;
@@ -118,16 +118,16 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   // create new address space
   struct addrspace* as;
   int as_check = 0;
-  as_check = as_copy(curproc->p_addrspace, &as)
+  as_check = as_copy(curproc->p_addrspace, &as);
   if (as_check != 0)
   {
     proc_destroy(p);
     return ENOMEM;
   }
   // assign the as to proc
-  spinlock_acquire(p->p_lock);
+  spinlock_acquire(&p->p_lock);
   p->p_addrspace = as;
-  spinlock_release(p->p_lock);
+  spinlock_release(&p->p_lock);
 
   // create a trapfram
   struct trapframe* child_tf;
