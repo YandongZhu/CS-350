@@ -75,7 +75,7 @@ struct semaphore;
 
 	struct pid_info* pid_info_create(pid_t child, pid_t parent);
 
-	void pid_info_destroy(pid_info* pid_info);
+	void pid_info_destroy(struct pid_info* pid_info);
 
 #endif // opt a2
 
