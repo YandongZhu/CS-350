@@ -11,6 +11,7 @@
 #include <copyinout.h>
 #include <mips/trapframe.h>
 #include <limits.h>
+#include <synch.h>
 #include "opt-A2.h"
 
   /* this implementation of sys__exit does not do anything with the exit code */
@@ -134,7 +135,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   child_tf = kmalloc(sizeof(*child_tf));
   if (child_tf = NULL)
   {
-    array_add(reuse_pid, p->pid, NULL);
+    array_add(reuse_pid, p->p_pid, NULL);
     kfree(as);
     proc_destroy(p);
     return ENOMEM;
@@ -146,7 +147,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   td_check = thread_fork("child_process", p, enter_fork_process, child_tf, 0);
   if (td_check != 0)
   {
-    array_add(reuse_pid, p->pid, NULL);
+    array_add(reuse_pid, p->p_pid, NULL);
     kfree(as);
     kfree(child_tf);
     proc_destroy(p);
@@ -155,14 +156,14 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
 
   // assign parent pid
   lock_acquire(pid_control);
-  struct pid* child_pid_info;
+  struct pid_info* child_pid_info;
   child_pid_info = pid_struct_create(p->pid, curproc->pid);
   p->p_pid_info = child_pid_info;
   array_add(total_proc, child_pid_info, NULL);
   lock_release(pid_control);
 
   // assign return value
-  *retval = p->pid;
+  *retval = p->p_pid;
   return 0;
 
 }

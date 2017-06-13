@@ -41,6 +41,18 @@
 
 struct addrspace;
 struct vnode;
+
+#if OPT_A2
+struct array;
+struct lock;
+struct cv;
+
+extern struct lock* pid_control;
+extern struct array* total_proc;
+extern struct array* reuse_pid;
+extern struct cv* pid_cv;
+#endif
+
 #ifdef UW
 struct semaphore;
 #endif // UW
