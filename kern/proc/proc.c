@@ -263,7 +263,7 @@ proc_bootstrap(void)
   	total_proc = array_create();
   	reuse_pid = array_create();
   	pid_cv = cv_create("pid_cv");
-  #endif;
+  #endif
 #endif // UW 
 
 
