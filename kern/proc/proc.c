@@ -151,7 +151,7 @@ proc_create(const char *name)
 #endif // UW
 
 #ifdef OPT_A2
-	proc->pid_info = NULL;
+	proc->p_pid_info = NULL;
 #endif
 
 	return proc;
