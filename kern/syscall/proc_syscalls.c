@@ -135,7 +135,8 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   child_tf = kmalloc(sizeof(*child_tf));
   if (child_tf == NULL)
   {
-    array_add(reuse_pid, p->p_pid, NULL);
+    pid_t* pt = &p->p_pid
+    array_add(reuse_pid, pt, NULL);
     kfree(as);
     proc_destroy(p);
     return ENOMEM;
@@ -147,7 +148,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   td_check = thread_fork("child_process", p, enter_fork_process, child_tf, 0);
   if (td_check != 0)
   {
-    pid_t pt = p->p_pid;
+    pid_t* pt = &p->p_pid;
     array_add(reuse_pid, pt, NULL);
     kfree(as);
     kfree(child_tf);
