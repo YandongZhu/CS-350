@@ -130,6 +130,12 @@ syscall(struct trapframe *tf)
 			    (pid_t *)&retval);
 	  break;
 #endif // UW
+#if OPT_A2
+	case SYS_fork:
+	  err = sys_fork((pid_t *)&retval, (struct trapframe *)tf);
+	  break;
+#endif // OPT A2
+
 
 	    /* Add stuff here */
  
@@ -176,8 +182,22 @@ syscall(struct trapframe *tf)
  *
  * Thus, you can trash it and do things another way if you prefer.
  */
+#if OPT_A2
+void
+enter_forked_process(void *tf, unsigned long data)
+{	
+	struct trapframe stack_tf = *(struct trapframe *)tf;
+	kfree(tf);
+	stacktf.tf_a3 = 0;
+	stacktf.tf_v0 = data;
+	stacktf.tf_epc += 4;
+	mips_usermode(&stack_tf);
+}
+#else
+
 void
 enter_forked_process(struct trapframe *tf)
 {
 	(void)tf;
 }
+#endif

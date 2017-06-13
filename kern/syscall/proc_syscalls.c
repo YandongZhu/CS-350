@@ -9,6 +9,9 @@
 #include <thread.h>
 #include <addrspace.h>
 #include <copyinout.h>
+#include <mips/trapframe.h>
+#include <limits.h>
+#include "opt-A2.h"
 
   /* this implementation of sys__exit does not do anything with the exit code */
   /* this needs to be fixed to get exit() and waitpid() working properly */
@@ -55,7 +58,11 @@ sys_getpid(pid_t *retval)
 {
   /* for now, this is just a stub that always returns a PID of 1 */
   /* you need to fix this to make it work properly */
+  #ifdef OPT_A2
+  *retval = curproc->pid;
+  #else
   *retval = 1;
+  #endif
   return(0);
 }
 
@@ -92,3 +99,71 @@ sys_waitpid(pid_t pid,
   return(0);
 }
 
+#if OPT_A2
+int sys_fork(pid_t *retval, struct trapframe *tf){
+  // create new process
+  struct proc* p = proc_create_runprogram("process");
+  if (p == NULL)
+  {
+    return ENOMEM;
+  }
+
+  // if too many process
+  if (p->pid > PID_MAX)
+  {
+    proc_destroy(p);
+    return ENPROC;
+  }
+
+  // create new address space
+  struct addrspace* as;
+  int as_check = 0;
+  as_check = as_copy(curproc->p_addrspace, &as)
+  if (as_check != 0)
+  {
+    proc_destroy(p);
+    return ENOMEM;
+  }
+  // assign the as to proc
+  spinlock_acquire(p->p_lock);
+  p->p_addrspace = as;
+  spinlock_release(p->p_lock);
+
+  // create a trapfram
+  struct trapframe* child_tf;
+  child_tf = kmalloc(sizeof(*child_tf));
+  if (child_tf = NULL)
+  {
+    array_add(reuse_pid, p->pid, NULL);
+    kfree(as);
+    proc_destroy(p);
+    return ENOMEM;
+  }
+  *child_tf = *tf;
+
+  // create a thread
+  int td_check = 0;
+  td_check = thread_fork("child_process", p, enter_fork_process, child_tf, 0);
+  if (td_check != 0)
+  {
+    array_add(reuse_pid, p->pid, NULL);
+    kfree(as);
+    kfree(child_tf);
+    proc_destroy(p);
+    return ENOMEM;
+  }
+
+  // assign parent pid
+  lock_acquire(pid_control);
+  struct pid* child_pid_info;
+  child_pid_info = pid_struct_create(p->pid, curproc->pid);
+  p->p_pid_info = child_pid_info;
+  array_add(total_proc, child_pid_info, NULL);
+  lock_release(pid_control);
+
+  // assign return value
+  *retval = p->pid;
+  return 0;
+
+}
+#endif

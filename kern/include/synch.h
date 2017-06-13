@@ -121,7 +121,7 @@ struct cv {
 struct cv *cv_create(const char *name);
 void cv_destroy(struct cv *);
 
-/*
+/*https://www.youtube.com/watch?v=CCekD4b4OiM&index=79&list=PLvDJz5pI3m4HQDWAqXy1Pin9XGOgcWqcS
  * Operations:
  *    cv_wait      - Release the supplied lock, go to sleep, and, after
  *                   waking up again, re-acquire the lock.

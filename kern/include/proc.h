@@ -48,6 +48,21 @@ struct semaphore;
 /*
  * Process structure.
  */
+
+#ifdef OPT_A2
+struct pid_info
+{
+	pid_t current; // this proc's pid
+	pid_t parent; // its parent pid
+	bool exit;  // the proc has exited or not 
+	int exit_code;	// the exit code
+};
+
+// to create a pid
+pid_t pid_create(void);
+
+#endif
+
 struct proc {
 	char *p_name;			/* Name of this process */
 	struct spinlock p_lock;		/* Lock for this structure */
@@ -58,6 +73,13 @@ struct proc {
 
 	/* VFS */
 	struct vnode *p_cwd;		/* current working directory */
+#ifdef OPT_A2
+
+	pid_t p_pid;
+
+	struct pid_info* p_pid_info;
+
+#endif	
 
 #ifdef UW
   /* a vnode to refer to the console device */
@@ -70,6 +92,8 @@ struct proc {
 
 	/* add more material here as needed */
 };
+
+
 
 /* This is the process structure for the kernel and for kernel-only threads. */
 extern struct proc *kproc;

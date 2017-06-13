@@ -49,12 +49,23 @@
 #include <vnode.h>
 #include <vfs.h>
 #include <synch.h>
-#include <kern/fcntl.h>  
+#include <kern/fcntl.h> 
+#include <array.h> 
+#include <synch.h>
 
 /*
  * The process for the kernel; this holds all the kernel-only threads.
  */
 struct proc *kproc;
+//struct lock* pid_control;
+
+#ifdef OPT_A2
+	struct array* reuse_pid;
+	struct array* total_proc;
+	struct cv* pid_cv;
+	struct lock* pid_control;
+	static pid_t pid_count = 1;
+#endif
 
 /*
  * Mechanism for making the kernel menu thread sleep while processes are running
@@ -69,7 +80,43 @@ static struct semaphore *proc_count_mutex;
 struct semaphore *no_proc_sem;   
 #endif  // UW
 
+#ifdef OPT_A2
+pid_t pid_create(void)
+{
+	pid_t temp;
+	if (array_num(reuse_pid) == 0)
+	{
+		temp = pid_count;
+		pid_count++;
+	}
+	else
+	{
+		lock_acquire(pid_control);
+		temp = *(pid_t *)array_get(reuse_pid, 0);	
+		array_remove(reuse_pid, 0);
+		lock_release(pid_control);
+	}
+	return temp;
+}
 
+pid* pid_info_create(pid_t child, pid_t parent)
+{
+	struct pid_info *pid_info;
+	pid_info = kmalloc(sizeof(*pid));
+	pid_info->current = child;
+	pid_info->parent = parent;
+	pid_info->exit = 0;
+	pid_info->exit_code = 0;
+	return pid_info;
+}
+
+void pid_info_destroy(pid_info* pid_info){
+	KASSERT(pid_info != NULL);
+
+	kfree(pid_info);
+}
+
+#endif
 
 /*
  * Create a proc structure.
@@ -102,6 +149,10 @@ proc_create(const char *name)
 #ifdef UW
 	proc->console = NULL;
 #endif // UW
+
+#ifdef OPT_A2
+	proc->pid = NULL;
+#endif
 
 	return proc;
 }
@@ -270,6 +321,12 @@ proc_create_runprogram(const char *name)
 	proc_count++;
 	V(proc_count_mutex);
 #endif // UW
+
+#ifdef OPT_A2
+	lock_acquire(pid_control);
+	proc->pid = pid_create();
+	lock_release(pid_control);
+#endif
 
 	return proc;
 }
