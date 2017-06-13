@@ -188,9 +188,9 @@ enter_forked_process(void *tf, unsigned long data)
 {	
 	struct trapframe stack_tf = *(struct trapframe *)tf;
 	kfree(tf);
-	stacktf.tf_a3 = 0;
-	stacktf.tf_v0 = data;
-	stacktf.tf_epc += 4;
+	stack_tf.tf_a3 = 0;
+	stack_tf.tf_v0 = data;
+	stack_tf.tf_epc += 4;
 	mips_usermode(&stack_tf);
 }
 #else
