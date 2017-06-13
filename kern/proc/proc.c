@@ -102,7 +102,7 @@ pid_t pid_create(void)
 struct pid_info* pid_info_create(pid_t child, pid_t parent)
 {
 	struct pid_info *pid_info;
-	pid_info = kmalloc(sizeof(*pid));
+	pid_info = kmalloc(sizeof(*pid_info));
 	pid_info->current = child;
 	pid_info->parent = parent;
 	pid_info->exit = 0;
@@ -110,7 +110,7 @@ struct pid_info* pid_info_create(pid_t child, pid_t parent)
 	return pid_info;
 }
 
-void pid_info_destroy(pid_info* pid_info){
+void pid_info_destroy(struct pid_info* pid_info){
 	KASSERT(pid_info != NULL);
 
 	kfree(pid_info);
@@ -151,7 +151,7 @@ proc_create(const char *name)
 #endif // UW
 
 #ifdef OPT_A2
-	proc->pid = NULL;
+	proc->pid_info = NULL;
 #endif
 
 	return proc;
@@ -333,7 +333,7 @@ proc_create_runprogram(const char *name)
 
 #ifdef OPT_A2
 	lock_acquire(pid_control);
-	proc->pid = pid_create();
+	proc->p_pid = pid_create();
 	lock_release(pid_control);
 #endif
 
