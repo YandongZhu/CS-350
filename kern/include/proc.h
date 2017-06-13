@@ -62,22 +62,22 @@ struct semaphore;
  */
 
 #ifdef OPT_A2
-struct pid_info
-{
-	pid_t current; // this proc's pid
-	pid_t parent; // its parent pid
-	bool exit;  // the proc has exited or not 
-	int exit_code;	// the exit code
-};
+	struct pid_info
+	{
+		pid_t current; // this proc's pid
+		pid_t parent; // its parent pid
+		bool exit;  // the proc has exited or not 
+		int exit_code;	// the exit code
+	};
 
-// to create a pid
-pid_t pid_create(void);
+	// to create a pid
+	pid_t pid_create(void);
 
-struct pid_info* pid_info_create(pid_t child, pid_t parent);
+	struct pid_info* pid_info_create(pid_t child, pid_t parent);
 
-void pid_info_destroy(pid_info* pid_info);
+	void pid_info_destroy(pid_info* pid_info);
 
-#endif
+#endif // opt a2
 
 struct proc {
 	char *p_name;			/* Name of this process */
@@ -89,15 +89,6 @@ struct proc {
 
 	/* VFS */
 	struct vnode *p_cwd;		/* current working directory */
-#ifdef OPT_A2
-
-	pid_t p_pid;
-
-	struct pid_info* p_pid_info(pid_t child, pid_t parent);
-
-	void pid_info_destroy(pid_info* pid_info)
-
-#endif	
 
 #ifdef UW
   /* a vnode to refer to the console device */
