@@ -73,7 +73,9 @@ struct pid_info
 // to create a pid
 pid_t pid_create(void);
 
-struct pid_info* pid_info_create(pid_t child, pid_t parent)
+struct pid_info* pid_info_create(pid_t child, pid_t parent);
+
+void pid_info_destroy(pid_info* pid_info);
 
 #endif
 
