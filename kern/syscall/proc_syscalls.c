@@ -157,7 +157,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   // assign parent pid
   lock_acquire(pid_control);
   struct pid_info* child_pid_info;
-  child_pid_info = pid_struct_create(p->pid, curproc->pid);
+  child_pid_info = pid_struct_create(p->p_pid, curproc->p_pid);
   p->p_pid_info = child_pid_info;
   array_add(total_proc, child_pid_info, NULL);
   lock_release(pid_control);
