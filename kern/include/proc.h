@@ -73,6 +73,8 @@ struct pid_info
 // to create a pid
 pid_t pid_create(void);
 
+struct pid_info* pid_info_create(pid_t child, pid_t parent)
+
 #endif
 
 struct proc {
@@ -89,7 +91,9 @@ struct proc {
 
 	pid_t p_pid;
 
-	struct pid_info* p_pid_info;
+	struct pid_info* p_pid_info(pid_t child, pid_t parent);
+
+	void pid_info_destroy(pid_info* pid_info)
 
 #endif	
 

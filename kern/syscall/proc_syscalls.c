@@ -133,7 +133,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   // create a trapfram
   struct trapframe* child_tf;
   child_tf = kmalloc(sizeof(*child_tf));
-  if (child_tf = NULL)
+  if (child_tf == NULL)
   {
     array_add(reuse_pid, p->p_pid, NULL);
     kfree(as);
@@ -147,7 +147,8 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   td_check = thread_fork("child_process", p, enter_fork_process, child_tf, 0);
   if (td_check != 0)
   {
-    array_add(reuse_pid, p->p_pid, NULL);
+    pid_t pt = p->p_pid;
+    array_add(reuse_pid, pt, NULL);
     kfree(as);
     kfree(child_tf);
     proc_destroy(p);
