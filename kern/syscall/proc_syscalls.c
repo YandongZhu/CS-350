@@ -135,7 +135,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   child_tf = kmalloc(sizeof(*child_tf));
   if (child_tf == NULL)
   {
-    pid_t* pt = &p->p_pid
+    pid_t* pt = &p->p_pid;
     array_add(reuse_pid, pt, NULL);
     kfree(as);
     proc_destroy(p);
@@ -145,7 +145,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
 
   // create a thread
   int td_check = 0;
-  td_check = thread_fork("child_process", p, enter_fork_process, child_tf, 0);
+  td_check = thread_fork("child_process", p, enter_forked_process, child_tf, 0);
   if (td_check != 0)
   {
     pid_t* pt = &p->p_pid;
@@ -159,7 +159,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   // assign parent pid
   lock_acquire(pid_control);
   struct pid_info* child_pid_info;
-  child_pid_info = pid_struct_create(p->p_pid, curproc->p_pid);
+  child_pid_info = pid_info_create(p->p_pid, curproc->p_pid);
   p->p_pid_info = child_pid_info;
   array_add(total_proc, child_pid_info, NULL);
   lock_release(pid_control);
