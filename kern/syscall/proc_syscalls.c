@@ -26,9 +26,6 @@ void sys__exit(int exitcode) {
 
   #ifdef OPT_A2
 
-    KASSERT(pid_control != NULL);
-
-
     lock_acquire(pid_control);
 
     // current pid
@@ -76,9 +73,9 @@ void sys__exit(int exitcode) {
       i++;
     }  
 
+    kprintf("parent %d\n", temp->parent);
+
     // if current proc has no parent
-
-
     if (temp->parent == 0)
     {
       pid_t* child_pid = &temp->current;
@@ -271,8 +268,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   // assign parent pid
   lock_acquire(pid_control);
   struct pid_info* child_pid_info;
-  child_pid_info = pid_info_create(p->p_pid);
-  child_pid_info->parent = curproc->p_pid;
+  child_pid_info = pid_info_create(p->p_pid, curproc->p_pid);
   p->p_pid_info = child_pid_info;
   array_add(total_proc, child_pid_info, NULL);
   lock_release(pid_control);
