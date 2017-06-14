@@ -37,12 +37,12 @@ void sys__exit(int exitcode) {
     unsigned size = array_num(total_proc);
     while(i < size)
     {
-      temp = array_get(total_proc, i);
+      temp = (struct pid_info *)array_get(total_proc, i);
       if (temp->parent == cur_pid)
       {
         // child has exit already
-        //if (temp->exit)
-        //{
+        if (temp->exit)
+        {
           array_remove(total_proc, i);
           pid_t* child_pid = &temp->current;
           array_add(reuse_pid, child_pid, NULL);
@@ -50,12 +50,12 @@ void sys__exit(int exitcode) {
           temp = NULL;
           size--;
           continue;
-        //}
+        }
         // child has not yet exit
-        //else 
-        //{
-        //  temp->parent = 0;
-        //}
+        else 
+        {
+          temp->parent = 0;
+        }
       }
       i++;
     }
@@ -65,7 +65,7 @@ void sys__exit(int exitcode) {
     while(i < size)
     {
       // find the target proc
-      temp = array_get(total_proc, i);
+      temp = (struct pid_info *)array_get(total_proc, i);
       if (temp->current == cur_pid)
       {
         break;
@@ -74,18 +74,18 @@ void sys__exit(int exitcode) {
     }  
 
     // if current proc has no parent
-    //if (temp->parent == 0)
-    //{
-    //  pid_t* child_pid = &temp->current;
-    //  array_add(reuse_pid, child_pid, NULL);
-    //  pid_info_destroy(temp);
-    //}
-    //else
-    //{
+    if (temp->parent == 0)
+    {
+      pid_t* child_pid = &temp->current;
+      array_add(reuse_pid, child_pid, NULL);
+      pid_info_destroy(temp);
+    }
+    else
+    {
       temp->exit = 1;
       temp->exit_code = _MKWAIT_EXIT(exitcode);
       cv_broadcast(pid_cv, pid_control);
-    //}
+    }
     lock_release(pid_control);
 
   #else
