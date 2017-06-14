@@ -99,12 +99,12 @@ pid_t pid_create(void)
 	return temp;
 }
 
-struct pid_info* pid_info_create(pid_t child)
+struct pid_info* pid_info_create(pid_t child, pid_t parent)
 {
 	struct pid_info *pid_info;
 	pid_info = kmalloc(sizeof(*pid_info));
 	pid_info->current = child;
-	pid_info->parent = 0;
+	pid_info->parent = parent;
 	pid_info->exit = 0;
 	pid_info->exit_code = 0;
 	return pid_info;
