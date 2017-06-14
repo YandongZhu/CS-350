@@ -23,7 +23,72 @@ void sys__exit(int exitcode) {
   struct proc *p = curproc;
   /* for now, just include this to keep the compiler from complaining about
      an unused variable */
-  (void)exitcode;
+
+  #ifdef OPT_A2
+    lock_acquire(pid_control);
+
+    // current pid
+    pid_t cur_pid = p->p_pid;
+
+    // find all the children
+    struct pid_info* temp = NULL;
+    int i = 0;
+    int size = array_num(total_proc);
+    while(i < size)
+    {
+      temp = array_get(total_proc, i);
+      if (temp->parent = cur_pid)
+      {
+        // child has exit already
+        if (temp->exit)
+        {
+          array_remove(i, total_proc);
+          pid_t* child_pid = &temp->current;
+          array_add(reuse_pid, child_pid, NULL);
+          pid_info_destroy(temp);
+          temp = NULL;
+          size--;
+          continue;
+        }
+        // child has not yet exit
+        else 
+        {
+          temp->parent = 0;
+        }
+      }
+      i++;
+    }
+
+    // find the current pid infomation in the proc arr
+    i = 0;
+    while(i < size)
+    {
+      temp = array_get(total_proc, i);
+      if (temp->current = cur_pid)
+      {
+        break;
+      }
+      i++;
+    }  
+
+    // if current proc has no parent
+    if (temp->parent == 0)
+    {
+      pid_t* child_pid = &temp->current;
+      array_add(reuse_pid, child_pid, NULL);
+      pid_info_destroy(temp);
+    }
+    else
+    {
+      temp->exit = 1;
+      temp->exit_code = _MKWAIT_EXIT(exitcode);
+      cv_broadcast(pid_cv, pid_control);
+    }
+    lock_release(pid_control);
+    
+  #else
+    (void)exitcode;
+  #endif
 
   DEBUG(DB_SYSCALL,"Syscall: _exit(%d)\n",exitcode);
 
