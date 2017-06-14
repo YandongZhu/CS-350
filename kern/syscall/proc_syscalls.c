@@ -33,7 +33,7 @@ void sys__exit(int exitcode) {
     // find all the children
     struct pid_info* temp = NULL;
     int i = 0;
-    int size = array_num(total_proc);
+    unsigned size = array_num(total_proc);
     while(i < size)
     {
       temp = array_get(total_proc, i);
@@ -63,6 +63,7 @@ void sys__exit(int exitcode) {
     i = 0;
     while(i < size)
     {
+      // find the target proc
       temp = array_get(total_proc, i);
       if (temp->current == cur_pid)
       {
@@ -155,8 +156,48 @@ sys_waitpid(pid_t pid,
   if (options != 0) {
     return(EINVAL);
   }
-  /* for now, just pretend the exitstatus is 0 */
-  exitstatus = 0;
+
+  #ifdef OPT_A2
+    lock_acquire(pid_control);
+
+    int i = 0;
+    unsigned size = array_num(total_proc);
+    struct temp* info = NULL;
+    while (i < size)
+    {
+      temp = array_get(total_proc, i)
+      if (pid == temp->current)
+      {
+        break;
+      }
+      i++;
+    }
+
+    // if not find
+    if (i == size)
+    {
+      lock_release(pid_control);
+      return(ESRCH);
+    }
+
+    // if the parent is not corrent
+    if (temp->parent != curproc->pid)
+    {
+      lock_release(pid_control);
+      return(ECHILD);
+    }
+
+    // while not exit
+    while (!temp->exit)
+    {
+      cv_wait(pid_cv, pid_control);
+    }
+    exitstatus = temp->exit_code;
+    lock_release(pid_control);
+  #else
+    /* for now, just pretend the exitstatus is 0 */
+    exitstatus = 0;
+  #endif
   result = copyout((void *)&exitstatus,status,sizeof(int));
   if (result) {
     return(result);
