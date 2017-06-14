@@ -42,7 +42,7 @@ void sys__exit(int exitcode) {
         // child has exit already
         if (temp->exit)
         {
-          array_remove(i, total_proc);
+          array_remove(total_proc, i);
           pid_t* child_pid = &temp->current;
           array_add(reuse_pid, child_pid, NULL);
           pid_info_destroy(temp);
@@ -85,7 +85,7 @@ void sys__exit(int exitcode) {
       cv_broadcast(pid_cv, pid_control);
     }
     lock_release(pid_control);
-    
+
   #else
     (void)exitcode;
   #endif
