@@ -37,7 +37,7 @@ void sys__exit(int exitcode) {
     while(i < size)
     {
       temp = array_get(total_proc, i);
-      if (temp->parent = cur_pid)
+      if (temp->parent == cur_pid)
       {
         // child has exit already
         if (temp->exit)
@@ -64,7 +64,7 @@ void sys__exit(int exitcode) {
     while(i < size)
     {
       temp = array_get(total_proc, i);
-      if (temp->current = cur_pid)
+      if (temp->current == cur_pid)
       {
         break;
       }
