@@ -32,7 +32,7 @@ void sys__exit(int exitcode) {
 
     // find all the children
     struct pid_info* temp = NULL;
-    int i = 0;
+    unsigned i = 0;
     unsigned size = array_num(total_proc);
     while(i < size)
     {
@@ -160,12 +160,12 @@ sys_waitpid(pid_t pid,
   #ifdef OPT_A2
     lock_acquire(pid_control);
 
-    int i = 0;
+    unsigned i = 0;
     unsigned size = array_num(total_proc);
-    struct temp* info = NULL;
+    struct pid_info* temp = NULL;
     while (i < size)
     {
-      temp = array_get(total_proc, i)
+      temp = array_get(total_proc, i);
       if (pid == temp->current)
       {
         break;
@@ -181,7 +181,7 @@ sys_waitpid(pid_t pid,
     }
 
     // if the parent is not corrent
-    if (temp->parent != curproc->pid)
+    if (temp->parent != curproc->p_pid)
     {
       lock_release(pid_control);
       return(ECHILD);
