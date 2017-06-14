@@ -74,7 +74,7 @@ void sys__exit(int exitcode) {
       i++;
     }  
 
-    kprintf("temp %d\n", temp->current);
+    //kprintf("temp %d\n", temp->current);
 
     // if current proc has no parent
     if (temp->parent == 0)
