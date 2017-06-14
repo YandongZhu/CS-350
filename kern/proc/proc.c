@@ -65,6 +65,7 @@ struct proc *kproc;
 	struct cv* pid_cv = NULL;
 	struct lock* pid_control = NULL;
 	static pid_t pid_count = 1;
+	static bool first = true;
 #endif
 
 /*
@@ -263,6 +264,7 @@ proc_bootstrap(void)
   	total_proc = array_create();
   	reuse_pid = array_create();
   	pid_cv = cv_create("pid_cv");
+
   #endif
 #endif // UW 
 
@@ -334,6 +336,14 @@ proc_create_runprogram(const char *name)
 #ifdef OPT_A2
 	lock_acquire(pid_control);
 	proc->p_pid = pid_create();
+	if (first)
+	{
+		struct pid_info* first_pid_info;
+  	first_pid_info = pid_info_create(proc->p_pid, 0);
+  	proc->p_pid_info = first_pid_info;
+  	array_add(total_proc, first_pid_info, NULL);
+		first = false;
+	}
 	lock_release(pid_control);
 #endif
 
