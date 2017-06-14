@@ -62,6 +62,7 @@ void sys__exit(int exitcode) {
 
     // find the current pid infomation in the proc arr
     i = 0;
+    temp = NULL;
     while(i < size)
     {
       // find the target proc
@@ -72,6 +73,8 @@ void sys__exit(int exitcode) {
       }
       i++;
     }  
+
+    kprintf("temp %d\n", temp->current);
 
     // if current proc has no parent
     if (temp->parent == 0)
