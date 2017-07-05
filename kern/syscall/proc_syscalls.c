@@ -293,7 +293,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf)
 
 int sys_execv(userptr_t progname, userptr_t args)
 {
-  struct addrspace *asnew;
+  struct addrspace *as;
   struct addrspace *asold;
   struct vnode *v;
   vaddr_t entrypoint, stackptr;
@@ -420,14 +420,15 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   /* Create a new address space. */
-  asnew = as_create();
-  if (asnew == NULL) {
-    vfs_close(v);
-    // free
-    for(unsigned long i = 0; i < count; i++){
+  as = as_create();
+  if (as == NULL) 
+  {
+    for (unsigned long i = 0; i < count; ++i)
+    {
       kfree(copy_arr[i]);
     }
     kfree(copy_arr);
+    vfs_close(v);
     return ENOMEM;
   }
   /* Switch to it and activate it. */
