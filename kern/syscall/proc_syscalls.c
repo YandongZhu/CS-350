@@ -333,36 +333,20 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   // copy args
-  size_t totalen = 0;
-  for(unsigned long i = 0; i < count; i++){
-    len = strlen(((char **)args)[i]) + 1;
-    totalen = totalen + len;
-    if(totalen > ARG_MAX){
-      // free
-      for(unsigned long j = 0; j < i; j++){
-        kfree(copy_arr[j]);
-      }
-      kfree(copy_arr);
-      return E2BIG;
-    }
-    
-    copy_arr[i] = kmalloc(len);
-    // check kmalloc
-    if(!copy_arr[i]){
-      // free
-      for(unsigned long j = 0; j < i; j++){
-        kfree(copy_arr[j]);
-      }
-      kfree(copy_arr);
-      return ENOMEM;
-    }
+  size_t str_len = 0;
+  for (unsigned long i = 0; i < count; ++i)
+  {
+    str_len = strlen(((char **)args)[t]) + 1;
 
-    result = copyinstr((userptr_t)((char**)args)[i], copy_arr[i], len, NULL); //args + i * 4?
-    if(result) {
-      // free
-      for(unsigned long j = 0; j <= i; j++){
-        kfree(copy_arr[j]);
-      }
+    copy_arr[t] = kmalloc(str_len);
+
+    result = copyinstr((userptr_t)((char**)args)[t], copy_arr[t], str_len, NULL);
+    if (result)
+    {
+      for (unsigned long i = 0; i <= t; ++i)
+      {
+        kfree(copy_arr[i]);
+      } 
       kfree(copy_arr);
       return result;
     }
