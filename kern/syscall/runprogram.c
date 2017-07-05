@@ -43,6 +43,7 @@
 #include <vm.h>
 #include <vfs.h>
 #include <syscall.h>
+#include <copyinout.h>
 #include <test.h>
 #include "opt-A2.h"
 

@@ -12,6 +12,7 @@
 #include <mips/trapframe.h>
 #include <limits.h>
 #include <synch.h>
+#include <copyinout.h>
 #include "opt-A2.h"
 
   /* this implementation of sys__exit does not do anything with the exit code */
