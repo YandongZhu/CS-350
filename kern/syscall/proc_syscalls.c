@@ -408,12 +408,11 @@ int sys_execv(userptr_t progname, userptr_t args)
     return result;
   }
 
-  /* Open the file. */////////////////////////////////////////////////////////
+  /* Open the file. */
   result = vfs_open(copy_path, O_RDONLY, 0, &v);
-  kfree(copy_path);
   if (result) {
-    // free
-    for(unsigned long i = 0; i < count; i++){
+    for (unsigned long i = 0; i < count; ++i)
+    {
       kfree(copy_arr[i]);
     }
     kfree(copy_arr);
