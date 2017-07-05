@@ -431,6 +431,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     vfs_close(v);
     return ENOMEM;
   }
+  
   /* Switch to it and activate it. */
   as_old = curproc_getas();
   // destroy the old one
@@ -443,14 +444,15 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = load_elf(v, &entrypoint);
   if (result) {
     /* p_addrspace will go away when curproc is destroyed */
-    vfs_close(v);
-    // free
-    for(unsigned long i = 0; i < count; i++){
+    for (unsigned long i = 0; i < count; ++i)
+    {
       kfree(copy_arr[i]);
     }
     kfree(copy_arr);
+    vfs_close(v);
     return result;
   }
+
   /* Done with the file now. */
   vfs_close(v);
 
