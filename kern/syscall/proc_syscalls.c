@@ -432,7 +432,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     return ENOMEM;
   }
   /* Switch to it and activate it. */
-  struct addrspace *as_old = curproc_getas();
+  as_old = curproc_getas();
   // destroy the old one
   as_destroy(as_old);
   curproc_setas(as);
