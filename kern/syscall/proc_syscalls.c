@@ -356,7 +356,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   /* Open the file. */
   result = vfs_open(copy_path, O_RDONLY, 0, &v);
   if (result) {
-    for (unsigned long i = 0; i < arr_len; ++i)
+    for (unsigned long i = 0; i < count; ++i)
     {
       kfree(copy_arr[i]);
     }
@@ -368,7 +368,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   as = as_create();
   if (as == NULL) 
   {
-    for (unsigned long i = 0; i < arr_len; ++i)
+    for (unsigned long i = 0; i < count; ++i)
     {
       kfree(copy_arr[i]);
     }
@@ -387,7 +387,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = load_elf(v, &entrypoint);
   if (result) {
     /* p_addrspace will go away when curproc is destroyed */
-    for (unsigned long i = 0; i < arr_len; ++i)
+    for (unsigned long i = 0; i < count; ++i)
     {
       kfree(copy_arr[i]);
     }
@@ -405,7 +405,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = as_define_stack(as, &stackptr);
   if (result) {
     /* p_addrspace will go away when curproc is destroyed */
-    for (unsigned long i = 0; i < arr_len; ++i)
+    for (unsigned long i = 0; i < count; ++i)
     {
       kfree(copy_arr[i]);
     }
@@ -433,7 +433,7 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   if (result)
   {
-    for (unsigned long i = 0; i < arr_len; ++i)
+    for (unsigned long i = 0; i < count; ++i)
     {
       kfree(copy_arr[i]);
     }
