@@ -471,7 +471,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   /* copy the arguments into new address space */
   for (unsigned long i = 0; i < count; ++i)
   {
-    str_len = strlen(((char **)args)[i]) + 1;
+    str_len = strlen(copy_arr[i]) + 1;
     stackptr = stackptr - ROUNDUP(str_len, 8);
 
     result = copyoutstr(copy_arr[i], (userptr_t)stackptr, str_len, NULL);
@@ -487,6 +487,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     kfree(copy_arr[i]);
     copy_arr[i] = (char *)stackptr;
   }
+
 
   // copy arr
   len = sizeof(char *) * (count + 1);
