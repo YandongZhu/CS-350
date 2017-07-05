@@ -298,11 +298,8 @@ int sys_execv(userptr_t progname, userptr_t args)
   struct vnode *v;
   vaddr_t entrypoint, stackptr;
   int result;
-
-  // count and copy arguments///////////////////////////////////////////
-  if(!args){
-    return EFAULT;// ?
-  }
+  
+  // count the number of arguments
   unsigned long count = 0;
   while(((char **)args)[count] != NULL)
   {

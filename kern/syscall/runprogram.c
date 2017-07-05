@@ -120,7 +120,7 @@ runprogram(char *progname)
    		kfree(copy_arr);
    		return result;
    	}
-   	copy_arr[t] = (char *)stackptr;
+   	//copy_arr[t] = (char *)stackptr;
    	++t;
   }
 
