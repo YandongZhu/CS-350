@@ -116,7 +116,6 @@ runprogram(char *progname)
     	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
     	++t;
   	}
-  	size_t arr_len = sizeof(char *) * (nargs + 1);
   	char** copy_arr = kmalloc(arr_len);
   	stackptr = stackptr - ROUNDUP(arr_len, 8);
   	result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
