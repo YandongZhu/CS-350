@@ -109,31 +109,33 @@ runprogram(char *progname)
 	#ifdef OPT_A2
 	unsigned long t = 0;
 	size_t arr_len = sizeof(char *) * (nargs + 1);
-  	while (t < nargs)
-  	{
-    	size_t str_len = strlen(args[t]) + 1;
-    	stackptr = stackptr - ROUNDUP(str_len, 8);
-    	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
-    	if (result)
-    	{
-    		return result;
-    	}
-    	++t;
-  	}
-  	//char** copy_arr = kmalloc(arr_len);
-  	stackptr = stackptr - ROUNDUP(arr_len, 8);
-  	result = copyout(args, (userptr_t)stackptr, arr_len);
-  	//kfree(copy_arr);
-  	if (result)
-  	{
-    	return result;
-  	}
-  	
-  
-
+  while (t < nargs)
+  {
+   	size_t str_len = strlen(args[t]) + 1;
+   	stackptr = stackptr - ROUNDUP(str_len, 8);
+   	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
+   	if (result)
+   	{
+   		return result;
+   	}
+   	++t;
+  }
+  //char** copy_arr = kmalloc(arr_len);
+  stackptr = stackptr - ROUNDUP(arr_len, 8);
+  result = copyout(args, (userptr_t)stackptr, arr_len);
+  //kfree(copy_arr);
+  if (result)
+  {
+   	return result;
+  }
   /* Warp to user mode. */
-  enter_new_process(nargs /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
+  userptr_t user_stack = (userptr_t)stackptr;
+
+  enter_new_process(nargs /*argc*/, user_stack /*userspace addr of argv*/,
         stackptr, entrypoint);
+  #else
+  enter_new_process(0 /*argc*/, NULL /*userspace addr of argv*/,
+			  stackptr, entrypoint);
   #endif
 
   	/* enter_new_process does not return. */

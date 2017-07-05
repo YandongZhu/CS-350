@@ -477,7 +477,9 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   /* Warp to user mode. */
-  enter_new_process(count /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
+  userptr_t user_stack = (userptr_t)stackptr;
+  /* Warp to user mode. */
+  enter_new_process(nargs /*argc*/, user_stack /*userspace addr of argv*/,
         stackptr, entrypoint);
   
 
