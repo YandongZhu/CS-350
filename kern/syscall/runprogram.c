@@ -52,7 +52,11 @@
  * Calls vfs_open on progname and thus may destroy it.
  */
 int
+#ifdef OPT_A2
+runprogram(char *progname, unsigned long nargs, char **args)
+#else
 runprogram(char *progname)
+#endif
 {
 	struct addrspace *as;
 	struct vnode *v;
@@ -98,10 +102,35 @@ runprogram(char *progname)
 	}
 
 	/* Warp to user mode. */
-	enter_new_process(0 /*argc*/, NULL /*userspace addr of argv*/,
-			  stackptr, entrypoint);
 	
-	/* enter_new_process does not return. */
+
+	#ifdef OPT_A2
+	unsigned long t = 0;
+  	while (t < arr_len)
+  	{
+    	size_t str_len = strlen(((char **)args)[t]) + 1;
+    	stackptr = stackptr - ROUNDUP(str_len, 8);
+    	result = copyinstr(copy_arr[t], (userptr_t)stackptr, str_len, NULL);
+    	++t;
+  	}
+  	size_t arr_len = sizeof(char *) * (nargs + 1);
+  	char** copy_arr = kmalloc(arr_len);
+  	stackptr = stackptr - ROUNDUP(arr_len, 8);
+  	result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
+  	kfree(copy_arr);
+  	if (result)
+  	{
+    	return result;
+  	}
+  	
+  
+
+  /* Warp to user mode. */
+  enter_new_process(count /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
+        stackptr, entrypoint);
+  #endif
+
+  	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
 	return EINVAL;
 }

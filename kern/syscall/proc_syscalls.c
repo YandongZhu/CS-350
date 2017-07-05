@@ -17,7 +17,8 @@
   /* this implementation of sys__exit does not do anything with the exit code */
   /* this needs to be fixed to get exit() and waitpid() working properly */
 
-void sys__exit(int exitcode) {
+void sys__exit(int exitcode) 
+{
 
   struct addrspace *as;
   struct proc *p = curproc;
@@ -73,8 +74,6 @@ void sys__exit(int exitcode) {
       }
       i++;
     }  
-
-    //kprintf("temp %d\n", temp->current);
 
     // if current proc has no parent
     if (temp->parent == 0)
@@ -157,7 +156,8 @@ sys_waitpid(pid_t pid,
      Fix this!
   */
 
-  if (options != 0) {
+  if (options != 0) 
+  {
     return(EINVAL);
   }
 
@@ -195,7 +195,7 @@ sys_waitpid(pid_t pid,
     while (!temp->exit)
     {
       cv_wait(pid_cv, pid_control);
-    }
+    } 
     exitstatus = temp->exit_code;
     lock_release(pid_control);
   #else
@@ -203,15 +203,17 @@ sys_waitpid(pid_t pid,
     exitstatus = 0;
   #endif
   result = copyout((void *)&exitstatus,status,sizeof(int));
-  if (result) {
+  if (result) 
+  {
     return(result);
   }
   *retval = pid;
   return(0);
 }
 
-#if OPT_A2
-int sys_fork(pid_t *retval, struct trapframe *tf){
+#ifdef OPT_A2
+int sys_fork(pid_t *retval, struct trapframe *tf)
+{
   // create new process
   struct proc* p = proc_create_runprogram("process");
   if (p == NULL)
@@ -235,6 +237,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
     proc_destroy(p);
     return ENOMEM;
   }
+
   // assign the as to proc
   spinlock_acquire(&p->p_lock);
   p->p_addrspace = as;
@@ -270,6 +273,11 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   lock_acquire(pid_control);
   struct pid_info* child_pid_info;
   child_pid_info = pid_info_create(p->p_pid, curproc->p_pid);
+  if (child_pid_info == NULL)
+  {
+    lock_release(pid_control);
+    return ENOMEM;
+  }
   p->p_pid_info = child_pid_info;
   array_add(total_proc, child_pid_info, NULL);
   lock_release(pid_control);
@@ -278,5 +286,201 @@ int sys_fork(pid_t *retval, struct trapframe *tf){
   *retval = p->p_pid;
   return 0;
 
+}
+
+int sys_excev(userptr_t progname, userptr_t args)
+{
+  struct addrspace *as;
+  struct vnode *v;
+  vaddr_t entrypoint, stackptr;
+  int result;
+  int error = 0;
+  unsigned long t = 0;
+
+  /* count and copy the number of arguements */
+
+  // count the number of arguments
+  unsigned long count = 0;
+  while(((char **)args)[count] != NULL)
+  {
+    count++;
+  }
+  size_t arr_len = sizeof(char *) * (count + 1);
+  char** copy_arr = kmalloc(arr_len);
+  // NO SPACE
+  if (copy_arr == NULL)
+  {
+    return ENOMEM;
+  }
+
+  result = copyin(args, copy_arr, arr_len);
+  if(result){
+    kfree(copy_arr);
+    return result;
+  }
+
+  // copy the argument into arr
+  size_t str_len;
+  while (t < arr_len)
+  {
+    str_len = strlen(((char **)args)[t]) + 1;
+
+    copy_arr[t] = kmalloc(str_len);
+    if (copy_arr[t] == NULL)
+    {
+      error = 1;
+      break;
+    }
+    result = copyinstr((userptr_t)((char**)args)[t], copy_arr[t], str_len, NULL);
+    if (result)
+    {
+      break;
+    }
+    ++t;
+  }
+
+  //check error
+  if (error || result)
+  {
+    for (unsigned long i = 0; i <= t; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    if (error)
+      return ENOMEM;
+    else
+      return result;
+  }
+
+  /* copy the prog path*/
+  size_t path_len = strlen((char *)progname) + 1;
+  char* copy_path = kmalloc(path_len);
+  if (copy_path == NULL);
+  {
+    for (unsigned long i = 0; i < count; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    return ENOMEM;
+  }
+
+  result = copyinstr(progname, copy_path, path_len, NULL);
+  if (result)
+  {
+    for (unsigned long i = 0; i < count; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    kfree(copy_path);
+    return result;
+  }
+
+  /* Open the file. */
+  result = vfs_open(progname, O_RDONLY, 0, &v);
+  if (result) {
+    for (unsigned long i = 0; i < arr_len; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    return result;
+  }
+
+  /* Create a new address space. */
+  as = as_create();
+  if (as ==NULL) 
+  {
+    for (unsigned long i = 0; i < arr_len; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    vfs_close(v);
+    return ENOMEM;
+  }
+
+  /* Switch to it and activate it. */
+  struct addrspace *as_old = curproc_getas();
+
+  // destroy the old one
+  as_destroy(as_old);
+
+  curproc_setas(as);
+  as_activate();
+
+  /* Load the executable. */
+  result = load_elf(v, &entrypoint);
+  if (result) {
+    /* p_addrspace will go away when curproc is destroyed */
+    for (unsigned long i = 0; i < arr_len; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    vfs_close(v);
+    return result;
+  }
+
+  /* Done with the file now. */
+  vfs_close(v);
+
+  /* Define the user stack in the address space */
+  result = as_define_stack(as, &stackptr);
+  if (result) {
+    /* p_addrspace will go away when curproc is destroyed */
+    for (unsigned long i = 0; i < arr_len; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    return result;
+  }
+
+  /* copy the arguments into new address space */
+  t = 0;
+  while (t < arr_len)
+  {
+    str_len = strlen(((char **)args)[t]) + 1;
+    stackptr = stackptr - ROUNDUP(str_len, 8);
+
+    result = copyoutstr(copy_arr[t], (userptr_t)stackptr, str_len, NULL);
+    if (result)
+    {
+      break;
+    }
+    kfree(copy_arr[t]);
+    ++t;
+  }
+
+  if (result)
+  {
+    for (unsigned long i = 0; i < arr_len; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    return result;
+  }
+
+  stackptr = stackptr - ROUNDUP(arr_len, 8);
+  result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
+  if (result)
+  {
+    kfree(copy_arr);
+    return result;
+  }
+
+  /* Warp to user mode. */
+  enter_new_process(count /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
+        stackptr, entrypoint);
+  
+
+
+  /* enter_new_process does not return. */
+  panic("enter_new_process returned\n");
+  return EINVAL;
 }
 #endif
