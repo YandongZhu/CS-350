@@ -433,7 +433,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
   /* Switch to it and activate it. */
   asold = curproc_getas();
-  curproc_setas(asnew);
+  curproc_setas(as);
   as_activate();
 
   /* Load the executable. */
@@ -453,7 +453,7 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   // copy arguments into new addr space////////////////////////////////////////
   /* Define the user stack in the address space */
-  result = as_define_stack(asnew, &stackptr);
+  result = as_define_stack(as, &stackptr);
   if (result) {
     // free
     for(unsigned long i = 0; i < count; i++){
