@@ -324,55 +324,18 @@ int sys_execv(userptr_t progname, userptr_t args)
     copy_arr[i] = kmalloc(str_len);
 
     result = copyinstr((userptr_t)((char**)args)[i], copy_arr[i], str_len, NULL);
-    if (result)
-    {
-      for (unsigned long j = 0; j <= i; ++j)
-      {
-        kfree(copy_arr[j]);
-      } 
-      kfree(copy_arr);
-      return result;
-    }
   }
 
   size_t path_len = strlen((char *)progname) + 1;
   char* copy_path = kmalloc(path_len);
 
   result = copyinstr(progname, copy_path, path_len, NULL);
-  if (result)
-  {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    kfree(copy_path);
-    return result;
-  }
 
   /* Open the file. */
   result = vfs_open(copy_path, O_RDONLY, 0, &v);
-  if (result) {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    return result;
-  }
 
   /* Create a new address space. */
   as = as_create();
-  if (as == NULL) 
-  {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    vfs_close(v);
-    return ENOMEM;
-  }
 
   /* Switch to it and activate it. */
   as_old = curproc_getas();
@@ -384,31 +347,12 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   /* Load the executable. */
   result = load_elf(v, &entrypoint);
-  if (result) {
-    /* p_addrspace will go away when curproc is destroyed */
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    vfs_close(v);
-    return result;
-  }
 
   /* Done with the file now. */
   vfs_close(v);
 
   /* Define the user stack in the address space */
   result = as_define_stack(as, &stackptr);
-  if (result) {
-    /* p_addrspace will go away when curproc is destroyed */
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    return result;
-  }
 
   /* copy the arguments into new address space */
   for (unsigned long i = 0; i < count; ++i)
@@ -417,16 +361,9 @@ int sys_execv(userptr_t progname, userptr_t args)
     stackptr = stackptr - ROUNDUP(str_len, 8);
 
     result = copyoutstr(copy_arr[i], (userptr_t)stackptr, str_len, NULL);
-    if (result)
-    {
-      for (unsigned long j = 0; j < count; ++j)
-      {
-        kfree(copy_arr[j]);
-      }
-      kfree(copy_arr);
-      return result;
-    }
+
     kfree(copy_arr[i]);
+
     copy_arr[i] = (char *)stackptr;
   }
 
@@ -434,11 +371,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   // copy arr
   stackptr = stackptr - ROUNDUP(arr_len, 8);
   result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
-  if (result)
-  {
-    kfree(copy_arr);
-    return result;
-  }
+
 
   userptr_t user_stack = (userptr_t)stackptr;
   /* Warp to user mode. */

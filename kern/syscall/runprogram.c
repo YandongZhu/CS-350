@@ -117,8 +117,8 @@ runprogram(char *progname)
    	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
    	if (result)
    	{
-   		kfree(copy_arr);
-   		return result;
+   		kfree(copy_arr)
+   		return result
    	}
    	copy_arr[t] = (char *)stackptr;
    	++t;
@@ -130,8 +130,9 @@ runprogram(char *progname)
   kfree(copy_arr);
   if (result)
   {
-   	return result;
+  	return result;
   }
+
   /* Warp to user mode. */
   userptr_t user_stack = (userptr_t)stackptr;
 
