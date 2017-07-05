@@ -308,7 +308,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   {
     count++;
   }
-  
+
   size_t arr_len = sizeof(char *) * (count + 1);
   char** copy_arr = kmalloc(arr_len);
 
@@ -337,47 +337,6 @@ int sys_execv(userptr_t progname, userptr_t args)
       return result;
     }
   }
-
-  // copy program path////////////////////////////////////////////////////
-  /*if(!progname){
-    // free
-    for(unsigned long i = 0; i < count; i++){
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    return EFAULT; //?
-  }
-  
-  len = strlen((char *)progname) + 1;
-  if(len > PATH_MAX) {
-    // free
-    for(unsigned long i = 0; i < count; i++){
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    return E2BIG; // ? path max
-  }
-  char* copypath = kmalloc(len);
-  // check kmalloc
-  if(!copypath){
-    // free
-    for(unsigned long i = 0; i < count; i++){
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    return ENOMEM;
-  }
-
-  result = copyinstr(progname, copypath, len, NULL);
-  if(result){
-    // free
-    for(unsigned long i = 0; i < count; i++){
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
-    kfree(copypath);
-    return result;
-  }*/
 
   size_t path_len = strlen((char *)progname) + 1;
   char* copy_path = kmalloc(path_len);
@@ -471,7 +430,7 @@ int sys_execv(userptr_t progname, userptr_t args)
       return result;
     }
     kfree(copy_arr[i]);
-    copy_arr[i] = (char *)stackptr;
+    //copy_arr[i] = (char *)stackptr;
   }
 
 
@@ -483,7 +442,6 @@ int sys_execv(userptr_t progname, userptr_t args)
     kfree(copy_arr);
     return result;
   }
-
 
   userptr_t user_stack = (userptr_t)stackptr;
   /* Warp to user mode. */
