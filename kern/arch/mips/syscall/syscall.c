@@ -134,6 +134,9 @@ syscall(struct trapframe *tf)
 	case SYS_fork:
 	  err = sys_fork((pid_t *)&retval, (struct trapframe *)tf);
 	  break;
+	case SYS_execv:
+		err = sys_execv((userptr_t)tf->tf_a0, (userptr_t)tf->tf_a1);
+		break;
 #endif // OPT A2
 
 

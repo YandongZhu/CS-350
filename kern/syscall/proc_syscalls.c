@@ -13,6 +13,7 @@
 #include <limits.h>
 #include <synch.h>
 #include <copyinout.h>
+#include <vfs.h>
 #include "opt-A2.h"
 
   /* this implementation of sys__exit does not do anything with the exit code */
@@ -289,7 +290,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf)
 
 }
 
-int sys_excev(userptr_t progname, userptr_t args)
+int sys_execv(userptr_t progname, userptr_t args)
 {
   struct addrspace *as;
   struct vnode *v;
