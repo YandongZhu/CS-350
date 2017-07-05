@@ -323,11 +323,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     str_len = strlen(((char **)args)[t]) + 1;
 
     copy_arr[t] = kmalloc(str_len);
-    if (copy_arr[t] == NULL)
-    {
-      error = 1;
-      break;
-    }
+    
     result = copyinstr((userptr_t)((char**)args)[t], copy_arr[t], str_len, NULL);
     if (result)
     {
