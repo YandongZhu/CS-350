@@ -323,7 +323,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     str_len = strlen(((char **)args)[t]) + 1;
 
     copy_arr[t] = kmalloc(str_len);
-    
+
     result = copyinstr((userptr_t)((char**)args)[t], copy_arr[t], str_len, NULL);
     if (result)
     {
@@ -366,7 +366,7 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   /* Create a new address space. */
   as = as_create();
-  if (as ==NULL) 
+  if (as == NULL) 
   {
     for (unsigned long i = 0; i < arr_len; ++i)
     {
@@ -379,11 +379,9 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   /* Switch to it and activate it. */
   struct addrspace *as_old = curproc_getas();
-
-  
-
   curproc_setas(as);
   as_activate();
+
 
   /* Load the executable. */
   result = load_elf(v, &entrypoint);
@@ -401,6 +399,8 @@ int sys_execv(userptr_t progname, userptr_t args)
   /* Done with the file now. */
   vfs_close(v);
 
+
+
   /* Define the user stack in the address space */
   result = as_define_stack(as, &stackptr);
   if (result) {
@@ -413,9 +413,10 @@ int sys_execv(userptr_t progname, userptr_t args)
     return result;
   }
 
+
   /* copy the arguments into new address space */
   t = 0;
-  while (t < arr_len)
+  while (t < count)
   {
     str_len = strlen(((char **)args)[t]) + 1;
     stackptr = stackptr - ROUNDUP(str_len, 8);
