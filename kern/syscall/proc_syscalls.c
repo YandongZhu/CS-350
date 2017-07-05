@@ -455,6 +455,7 @@ int sys_execv(userptr_t progname, userptr_t args)
       break;
     }
     kfree(copy_arr[t]);
+    copy_arr[t] = (char *)stackptr;
     ++t;
   }
 
