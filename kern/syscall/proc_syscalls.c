@@ -310,7 +310,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   // copy arr
-  size_t len = sizeof(char *) * (count + 1);
+  /*size_t len = sizeof(char *) * (count + 1);
   char** copyargs = kmalloc(len);
   // check kmalloc
   if(!copyargs){
@@ -320,6 +320,15 @@ int sys_execv(userptr_t progname, userptr_t args)
   if(result){
     // free
     kfree(copyargs);
+    return result;
+  }*/
+
+  size_t arr_len = sizeof(char *) * (count + 1);
+  char** copy_arr = kmalloc(arr_len);
+
+  result = copyin(args, copy_arr, arr_len);
+  if(result){
+    kfree(copy_arr);
     return result;
   }
 
