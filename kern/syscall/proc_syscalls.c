@@ -353,7 +353,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   // copy program path////////////////////////////////////////////////////
-  if(!progname){
+  /*if(!progname){
     // free
     for(unsigned long i = 0; i < count; i++){
       kfree(copy_arr[i]);
@@ -391,11 +391,26 @@ int sys_execv(userptr_t progname, userptr_t args)
     kfree(copy_arr);
     kfree(copypath);
     return result;
+  }*/
+
+  size_t path_len = strlen((char *)progname) + 1;
+  char* copy_path = kmalloc(path_len);
+
+  result = copyinstr(progname, copy_path, path_len, NULL);
+  if (result)
+  {
+    for (unsigned long i = 0; i < count; ++i)
+    {
+      kfree(copy_arr[i]);
+    }
+    kfree(copy_arr);
+    kfree(copy_path);
+    return result;
   }
 
   /* Open the file. */////////////////////////////////////////////////////////
-  result = vfs_open(copypath, O_RDONLY, 0, &v);
-  kfree(copypath);
+  result = vfs_open(copy_path, O_RDONLY, 0, &v);
+  kfree(copy_path);
   if (result) {
     // free
     for(unsigned long i = 0; i < count; i++){
