@@ -300,14 +300,17 @@ int sys_execv(userptr_t progname, userptr_t args)
   int result;
 
   // count and copy arguments///////////////////////////////////////////
-  unsigned long num = 0;
   if(!args){
     return EFAULT;// ?
   }
-  while(((char **)args)[num] != NULL) num++;//consider
+  unsigned long count = 0;
+  while(((char **)args)[count] != NULL)
+  {
+    count++;
+  }
 
   // copy arr
-  size_t len = sizeof(char *) * (num + 1);
+  size_t len = sizeof(char *) * (count + 1);
   char** copyargs = kmalloc(len);
   // check kmalloc
   if(!copyargs){
@@ -322,7 +325,7 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   // copy args
   size_t totalen = 0;
-  for(unsigned long i = 0; i < num; i++){
+  for(unsigned long i = 0; i < count; i++){
     len = strlen(((char **)args)[i]) + 1;
     totalen = totalen + len;
     if(totalen > ARG_MAX){
@@ -359,7 +362,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   // copy program path////////////////////////////////////////////////////
   if(!progname){
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -369,7 +372,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   len = strlen((char *)progname) + 1;
   if(len > PATH_MAX) {
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -379,7 +382,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   // check kmalloc
   if(!copypath){
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -389,7 +392,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = copyinstr(progname, copypath, len, NULL);
   if(result){
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -402,7 +405,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   kfree(copypath);
   if (result) {
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -414,7 +417,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   if (asnew == NULL) {
     vfs_close(v);
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -431,7 +434,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     /* p_addrspace will go away when curproc is destroyed */
     vfs_close(v);
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -445,7 +448,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = as_define_stack(asnew, &stackptr);
   if (result) {
     // free
-    for(unsigned long i = 0; i < num; i++){
+    for(unsigned long i = 0; i < count; i++){
       kfree(copyargs[i]);
     }
     kfree(copyargs);
@@ -454,13 +457,13 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   // copy args to user
-  for(unsigned long i = 0; i < num; i++){
+  for(unsigned long i = 0; i < count; i++){
     len = strlen(copyargs[i]) + 1;
     stackptr = stackptr - ROUNDUP(len, 8);//? limit or valid stackptr
     result = copyoutstr(copyargs[i], (userptr_t)stackptr, len, NULL);
     if(result){
       // free
-      for(unsigned long j = i; j < num; j++){
+      for(unsigned long j = i; j < count; j++){
         kfree(copyargs[j]);
       }
       kfree(copyargs);
@@ -471,7 +474,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   // copy arr
-  len = sizeof(char *) * (num + 1);
+  len = sizeof(char *) * (count + 1);
   stackptr = stackptr - ROUNDUP(len, 8);
   result = copyout(copyargs, (userptr_t)stackptr, len);
   if(result){
@@ -487,7 +490,7 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   // Call enter_new_process
   /* Warp to user mode. */
-  enter_new_process(num /*argc*/, stackk /*userspace addr of argv*/,
+  enter_new_process(count /*argc*/, stackk /*userspace addr of argv*/,
         stackptr, entrypoint);
   
   /* enter_new_process does not return. */
