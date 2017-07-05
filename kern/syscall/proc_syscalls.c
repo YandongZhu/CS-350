@@ -382,7 +382,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   }
 
   /* Open the file. */
-  result = vfs_open(progname, O_RDONLY, 0, &v);
+  result = vfs_open(copy_path, O_RDONLY, 0, &v);
   if (result) {
     for (unsigned long i = 0; i < arr_len; ++i)
     {
