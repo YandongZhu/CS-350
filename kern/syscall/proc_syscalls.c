@@ -298,7 +298,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   struct vnode *v;
   vaddr_t entrypoint, stackptr;
   int result;
-  
+
   // count the number of arguments
   unsigned long count = 0;
   while(((char **)args)[count] != NULL)
@@ -427,7 +427,7 @@ int sys_execv(userptr_t progname, userptr_t args)
       return result;
     }
     kfree(copy_arr[i]);
-    //copy_arr[i] = (char *)stackptr;
+    copy_arr[i] = (char *)stackptr;
   }
 
 
