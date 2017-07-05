@@ -308,21 +308,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   {
     count++;
   }
-
-  // copy arr
-  /*size_t len = sizeof(char *) * (count + 1);
-  char** copyargs = kmalloc(len);
-  // check kmalloc
-  if(!copyargs){
-    return ENOMEM;
-  }
-  result = copyin(args, copyargs, len);
-  if(result){
-    // free
-    kfree(copyargs);
-    return result;
-  }*/
-  size_t len = 0;
+  
   size_t arr_len = sizeof(char *) * (count + 1);
   char** copy_arr = kmalloc(arr_len);
 
@@ -490,21 +476,18 @@ int sys_execv(userptr_t progname, userptr_t args)
 
 
   // copy arr
-  len = sizeof(char *) * (count + 1);
-  stackptr = stackptr - ROUNDUP(len, 8);
-  result = copyout(copy_arr, (userptr_t)stackptr, len);
-  if(result){
+  stackptr = stackptr - ROUNDUP(arr_len, 8);
+  result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
+  if (result)
+  {
     kfree(copy_arr);
     return result;
   }
-  kfree(copy_arr);
-
-  userptr_t stackk = (userptr_t)stackptr;
 
 
-  // Call enter_new_process
+  userptr_t user_stack = (userptr_t)stackptr;
   /* Warp to user mode. */
-  enter_new_process(count /*argc*/, stackk /*userspace addr of argv*/,
+  enter_new_process(count /*argc*/, user_stack /*userspace addr of argv*/,
         stackptr, entrypoint);
   
   /* enter_new_process does not return. */
