@@ -322,7 +322,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     kfree(copyargs);
     return result;
   }*/
-
+  size_t len = 0;
   size_t arr_len = sizeof(char *) * (count + 1);
   char** copy_arr = kmalloc(arr_len);
 
@@ -340,30 +340,30 @@ int sys_execv(userptr_t progname, userptr_t args)
     if(totalen > ARG_MAX){
       // free
       for(unsigned long j = 0; j < i; j++){
-        kfree(copyargs[j]);
+        kfree(copy_arr[j]);
       }
-      kfree(copyargs);
+      kfree(copy_arr);
       return E2BIG;
     }
     
-    copyargs[i] = kmalloc(len);
+    copy_arr[i] = kmalloc(len);
     // check kmalloc
-    if(!copyargs[i]){
+    if(!copy_arr[i]){
       // free
       for(unsigned long j = 0; j < i; j++){
-        kfree(copyargs[j]);
+        kfree(copy_arr[j]);
       }
-      kfree(copyargs);
+      kfree(copy_arr);
       return ENOMEM;
     }
 
-    result = copyinstr((userptr_t)((char**)args)[i], copyargs[i], len, NULL); //args + i * 4?
+    result = copyinstr((userptr_t)((char**)args)[i], copy_arr[i], len, NULL); //args + i * 4?
     if(result) {
       // free
       for(unsigned long j = 0; j <= i; j++){
-        kfree(copyargs[j]);
+        kfree(copy_arr[j]);
       }
-      kfree(copyargs);
+      kfree(copy_arr);
       return result;
     }
   }
@@ -372,9 +372,9 @@ int sys_execv(userptr_t progname, userptr_t args)
   if(!progname){
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     return EFAULT; //?
   }
   
@@ -382,9 +382,9 @@ int sys_execv(userptr_t progname, userptr_t args)
   if(len > PATH_MAX) {
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     return E2BIG; // ? path max
   }
   char* copypath = kmalloc(len);
@@ -392,9 +392,9 @@ int sys_execv(userptr_t progname, userptr_t args)
   if(!copypath){
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     return ENOMEM;
   }
 
@@ -402,9 +402,9 @@ int sys_execv(userptr_t progname, userptr_t args)
   if(result){
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     kfree(copypath);
     return result;
   }
@@ -415,9 +415,9 @@ int sys_execv(userptr_t progname, userptr_t args)
   if (result) {
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     return result;
   }
 
@@ -427,9 +427,9 @@ int sys_execv(userptr_t progname, userptr_t args)
     vfs_close(v);
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     return ENOMEM;
   }
   /* Switch to it and activate it. */
@@ -444,9 +444,9 @@ int sys_execv(userptr_t progname, userptr_t args)
     vfs_close(v);
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     return result;
   }
   /* Done with the file now. */
@@ -458,39 +458,39 @@ int sys_execv(userptr_t progname, userptr_t args)
   if (result) {
     // free
     for(unsigned long i = 0; i < count; i++){
-      kfree(copyargs[i]);
+      kfree(copy_arr[i]);
     }
-    kfree(copyargs);
+    kfree(copy_arr);
     /* p_addrspace will go away when curproc is destroyed */
     return result;
   }
 
   // copy args to user
   for(unsigned long i = 0; i < count; i++){
-    len = strlen(copyargs[i]) + 1;
+    len = strlen(copy_arr[i]) + 1;
     stackptr = stackptr - ROUNDUP(len, 8);//? limit or valid stackptr
-    result = copyoutstr(copyargs[i], (userptr_t)stackptr, len, NULL);
+    result = copyoutstr(copy_arr[i], (userptr_t)stackptr, len, NULL);
     if(result){
       // free
       for(unsigned long j = i; j < count; j++){
-        kfree(copyargs[j]);
+        kfree(copy_arr[j]);
       }
-      kfree(copyargs);
+      kfree(copy_arr);
       return result;
     }
-    kfree(copyargs[i]);
-    copyargs[i] = (char *)stackptr;
+    kfree(copy_arr[i]);
+    copy_arr[i] = (char *)stackptr;
   }
 
   // copy arr
   len = sizeof(char *) * (count + 1);
   stackptr = stackptr - ROUNDUP(len, 8);
-  result = copyout(copyargs, (userptr_t)stackptr, len);
+  result = copyout(copy_arr, (userptr_t)stackptr, len);
   if(result){
-    kfree(copyargs);
+    kfree(copy_arr);
     return result;
   }
-  kfree(copyargs);
+  kfree(copy_arr);
 
   userptr_t stackk = (userptr_t)stackptr;
 
