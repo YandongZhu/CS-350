@@ -338,7 +338,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   {
     str_len = strlen(((char **)args)[i]) + 1;
 
-    copy_arr[t] = kmalloc(str_len);
+    copy_arr[i] = kmalloc(str_len);
 
     result = copyinstr((userptr_t)((char**)args)[i], copy_arr[i], str_len, NULL);
     if (result)
