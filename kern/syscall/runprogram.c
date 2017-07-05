@@ -108,11 +108,12 @@ runprogram(char *progname)
 
 	#ifdef OPT_A2
 	unsigned long t = 0;
+	size_t arr_len = sizeof(char *) * (nargs + 1);
   	while (t < arr_len)
   	{
     	size_t str_len = strlen(((char **)args)[t]) + 1;
     	stackptr = stackptr - ROUNDUP(str_len, 8);
-    	result = copyinstr(copy_arr[t], (userptr_t)stackptr, str_len, NULL);
+    	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
     	++t;
   	}
   	size_t arr_len = sizeof(char *) * (nargs + 1);
@@ -128,7 +129,7 @@ runprogram(char *progname)
   
 
   /* Warp to user mode. */
-  enter_new_process(count /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
+  enter_new_process(nargs /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
         stackptr, entrypoint);
   #endif
 
