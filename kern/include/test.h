@@ -84,7 +84,9 @@ int nettest(int, char **);
 /* Routine for running a user-level program. */
 #ifdef OPT_A2
 int runprogram(char *progname, unsigned long nargs, char **args)
+#else
 int runprogram(char *progname);
+#endif
 
 /* Kernel menu system. */
 void menu(char *argstr);
