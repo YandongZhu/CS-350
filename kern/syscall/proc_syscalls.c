@@ -293,172 +293,203 @@ int sys_fork(pid_t *retval, struct trapframe *tf)
 
 int sys_execv(userptr_t progname, userptr_t args)
 {
-  struct addrspace *as;
+  struct addrspace *asnew;
+  struct addrspace *asold;
   struct vnode *v;
   vaddr_t entrypoint, stackptr;
   int result;
-  unsigned long t = 0;
 
-  /* count and copy the number of arguements */
-
-  // count the number of arguments
-  unsigned long count = 0;
-  while(((char **)args)[count] != NULL)
-  {
-    count++;
+  // count and copy arguments///////////////////////////////////////////
+  unsigned long num = 0;
+  if(!args){
+    return EFAULT;// ?
   }
-  size_t arr_len = sizeof(char *) * (count + 1);
-  char** copy_arr = kmalloc(arr_len);
+  while(((char **)args)[num] != NULL) num++;//consider
 
-  result = copyin(args, copy_arr, arr_len);
+  // copy arr
+  size_t len = sizeof(char *) * (num + 1);
+  char** copyargs = kmalloc(len);
+  // check kmalloc
+  if(!copyargs){
+    return ENOMEM;
+  }
+  result = copyin(args, copyargs, len);
   if(result){
-    kfree(copy_arr);
+    // free
+    kfree(copyargs);
     return result;
   }
 
-  // copy the argument into arr
-  size_t str_len = 0;
-  while (t < count)
-  {
-    str_len = strlen(((char **)args)[t]) + 1;
+  // copy args
+  size_t totalen = 0;
+  for(unsigned long i = 0; i < num; i++){
+    len = strlen(((char **)args)[i]) + 1;
+    totalen = totalen + len;
+    if(totalen > ARG_MAX){
+      // free
+      for(unsigned long j = 0; j < i; j++){
+        kfree(copyargs[j]);
+      }
+      kfree(copyargs);
+      return E2BIG;
+    }
+    
+    copyargs[i] = kmalloc(len);
+    // check kmalloc
+    if(!copyargs[i]){
+      // free
+      for(unsigned long j = 0; j < i; j++){
+        kfree(copyargs[j]);
+      }
+      kfree(copyargs);
+      return ENOMEM;
+    }
 
-    copy_arr[t] = kmalloc(str_len);
-
-    result = copyinstr((userptr_t)((char**)args)[t], copy_arr[t], str_len, NULL);
-    if (result)
-    {
-      for (unsigned long i = 0; i <= t; ++i)
-      {
-        kfree(copy_arr[i]);
-      } 
-      kfree(copy_arr);
+    result = copyinstr((userptr_t)((char**)args)[i], copyargs[i], len, NULL); //args + i * 4?
+    if(result) {
+      // free
+      for(unsigned long j = 0; j <= i; j++){
+        kfree(copyargs[j]);
+      }
+      kfree(copyargs);
       return result;
     }
-    ++t;
   }
 
-  /* copy the prog path*/
-  size_t path_len = strlen((char *)progname) + 1;
-  char* copy_path = kmalloc(path_len);
-
-  result = copyinstr(progname, copy_path, path_len, NULL);
-  if (result)
-  {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
+  // copy program path////////////////////////////////////////////////////
+  if(!progname){
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
     }
-    kfree(copy_arr);
-    kfree(copy_path);
+    kfree(copyargs);
+    return EFAULT; //?
+  }
+  
+  len = strlen((char *)progname) + 1;
+  if(len > PATH_MAX) {
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
+    }
+    kfree(copyargs);
+    return E2BIG; // ? path max
+  }
+  char* copypath = kmalloc(len);
+  // check kmalloc
+  if(!copypath){
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
+    }
+    kfree(copyargs);
+    return ENOMEM;
+  }
+
+  result = copyinstr(progname, copypath, len, NULL);
+  if(result){
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
+    }
+    kfree(copyargs);
+    kfree(copypath);
     return result;
   }
 
-  /* Open the file. */
-  result = vfs_open(copy_path, O_RDONLY, 0, &v);
+  /* Open the file. */////////////////////////////////////////////////////////
+  result = vfs_open(copypath, O_RDONLY, 0, &v);
+  kfree(copypath);
   if (result) {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
     }
-    kfree(copy_arr);
+    kfree(copyargs);
     return result;
   }
 
   /* Create a new address space. */
-  as = as_create();
-  if (as == NULL) 
-  {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
+  asnew = as_create();
+  if (asnew == NULL) {
     vfs_close(v);
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
+    }
+    kfree(copyargs);
     return ENOMEM;
   }
-
   /* Switch to it and activate it. */
-  struct addrspace *as_old = curproc_getas();
-  curproc_setas(as);
+  asold = curproc_getas();
+  curproc_setas(asnew);
   as_activate();
-
 
   /* Load the executable. */
   result = load_elf(v, &entrypoint);
   if (result) {
     /* p_addrspace will go away when curproc is destroyed */
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
     vfs_close(v);
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
+    }
+    kfree(copyargs);
     return result;
   }
-
   /* Done with the file now. */
   vfs_close(v);
 
-
-
+  // copy arguments into new addr space////////////////////////////////////////
   /* Define the user stack in the address space */
-  result = as_define_stack(as, &stackptr);
+  result = as_define_stack(asnew, &stackptr);
   if (result) {
+    // free
+    for(unsigned long i = 0; i < num; i++){
+      kfree(copyargs[i]);
+    }
+    kfree(copyargs);
     /* p_addrspace will go away when curproc is destroyed */
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
     return result;
   }
 
-
-  /* copy the arguments into new address space */
-  t = 0;
-  while (t < count)
-  {
-    str_len = strlen(((char **)args)[t]) + 1;
-    stackptr = stackptr - ROUNDUP(str_len, 8);
-
-    result = copyoutstr(copy_arr[t], (userptr_t)stackptr, str_len, NULL);
-    if (result)
-    {
-      break;
+  // copy args to user
+  for(unsigned long i = 0; i < num; i++){
+    len = strlen(copyargs[i]) + 1;
+    stackptr = stackptr - ROUNDUP(len, 8);//? limit or valid stackptr
+    result = copyoutstr(copyargs[i], (userptr_t)stackptr, len, NULL);
+    if(result){
+      // free
+      for(unsigned long j = i; j < num; j++){
+        kfree(copyargs[j]);
+      }
+      kfree(copyargs);
+      return result;
     }
-    kfree(copy_arr[t]);
-    copy_arr[t] = (char *)stackptr;
-    ++t;
+    kfree(copyargs[i]);
+    copyargs[i] = (char *)stackptr;
   }
 
-  if (result)
-  {
-    for (unsigned long i = 0; i < count; ++i)
-    {
-      kfree(copy_arr[i]);
-    }
-    kfree(copy_arr);
+  // copy arr
+  len = sizeof(char *) * (num + 1);
+  stackptr = stackptr - ROUNDUP(len, 8);
+  result = copyout(copyargs, (userptr_t)stackptr, len);
+  if(result){
+    kfree(copyargs);
     return result;
   }
+  kfree(copyargs);
 
-  stackptr = stackptr - ROUNDUP(arr_len, 8);
-  result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
-  if (result)
-  {
-    kfree(copy_arr);
-    return result;
-  }
+  userptr_t stackk = (userptr_t)stackptr;
 
-  // destroy the old one
-  as_destroy(as_old);
+  // Delete old address space
+  as_destroy(asold);
 
-  userptr_t user_stack = (userptr_t)stackptr;
+  // Call enter_new_process
   /* Warp to user mode. */
-  enter_new_process(count /*argc*/, user_stack /*userspace addr of argv*/,
+  enter_new_process(num /*argc*/, stackk /*userspace addr of argv*/,
         stackptr, entrypoint);
   
-
-
   /* enter_new_process does not return. */
   panic("enter_new_process returned\n");
   return EINVAL;
