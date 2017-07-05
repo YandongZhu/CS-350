@@ -300,20 +300,20 @@ int sys_execv(userptr_t progname, userptr_t args)
   int result;
 
   // count the number of arguments
-  unsigned long count = 0;
-  while(((char **)args)[count] != NULL)
+  unsigned long nargs = 0;
+  while(((char **)args)[nargs] != NULL)
   {
-    count++;
+    nargs++;
   }
 
-  size_t arr_len = sizeof(char *) * (count + 1);
+  size_t arr_len = sizeof(char *) * (nargs + 1);
   char** copy_arr = kmalloc(arr_len);
 
   result = copyin(args, copy_arr, arr_len);
 
   // copy args into arr
   size_t str_len = 0;
-  for (unsigned long i = 0; i < count; ++i)
+  for (unsigned long i = 0; i < nargs; ++i)
   {
     str_len = strlen(((char **)args)[i]) + 1;
 
@@ -352,7 +352,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = as_define_stack(as, &stackptr);
 
   /* copy the arguments into new address space */
-  for (unsigned long i = 0; i < count; ++i)
+  for (unsigned long i = 0; i < nargs; ++i)
   {
     str_len = strlen(copy_arr[i]) + 1;
     stackptr = stackptr - ROUNDUP(str_len, 8);
@@ -370,7 +370,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
 
   /* Warp to user mode. */
-  enter_new_process(count /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
+  enter_new_process(nargs /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
         stackptr, entrypoint);
   
   /* enter_new_process does not return. */
