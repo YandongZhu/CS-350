@@ -294,7 +294,7 @@ int sys_fork(pid_t *retval, struct trapframe *tf)
 int sys_execv(userptr_t progname, userptr_t args)
 {
   struct addrspace *as;
-  struct addrspace *asold;
+  struct addrspace *as_old;
   struct vnode *v;
   vaddr_t entrypoint, stackptr;
   int result;
@@ -432,9 +432,12 @@ int sys_execv(userptr_t progname, userptr_t args)
     return ENOMEM;
   }
   /* Switch to it and activate it. */
-  asold = curproc_getas();
+  struct addrspace *as_old = curproc_getas();
+  // destroy the old one
+  as_destroy(as_old);
   curproc_setas(as);
   as_activate();
+
 
   /* Load the executable. */
   result = load_elf(v, &entrypoint);
@@ -493,8 +496,6 @@ int sys_execv(userptr_t progname, userptr_t args)
 
   userptr_t stackk = (userptr_t)stackptr;
 
-  // Delete old address space
-  as_destroy(asold);
 
   // Call enter_new_process
   /* Warp to user mode. */
