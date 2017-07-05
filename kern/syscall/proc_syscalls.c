@@ -328,7 +328,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     if(totalen > ARG_MAX){
       // free
       for(unsigned long j = 0; j < i; j++){
-        kfree(copyargs[jscR]);
+        kfree(copyargs[j]);
       }
       kfree(copyargs);
       return E2BIG;
@@ -486,7 +486,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   as_destroy(asold);
 
   // Call enter_new_process
-  /* Warp to user mode. *//
+  /* Warp to user mode. */
   enter_new_process(num /*argc*/, stackk /*userspace addr of argv*/,
         stackptr, entrypoint);
   
