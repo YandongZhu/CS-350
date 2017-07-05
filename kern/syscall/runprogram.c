@@ -117,7 +117,7 @@ runprogram(char *progname)
    	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
    	if (result)
    	{
-   		kfree(copy_arr)
+   		kfree(copy_arr);
    		return result;
    	}
    	copy_arr[t] = (char *)stackptr;
