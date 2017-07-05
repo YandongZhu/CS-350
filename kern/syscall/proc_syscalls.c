@@ -431,7 +431,7 @@ int sys_execv(userptr_t progname, userptr_t args)
     vfs_close(v);
     return ENOMEM;
   }
-  
+
   /* Switch to it and activate it. */
   as_old = curproc_getas();
   // destroy the old one
@@ -456,27 +456,29 @@ int sys_execv(userptr_t progname, userptr_t args)
   /* Done with the file now. */
   vfs_close(v);
 
-  // copy arguments into new addr space////////////////////////////////////////
   /* Define the user stack in the address space */
   result = as_define_stack(as, &stackptr);
   if (result) {
-    // free
-    for(unsigned long i = 0; i < count; i++){
+    /* p_addrspace will go away when curproc is destroyed */
+    for (unsigned long i = 0; i < count; ++i)
+    {
       kfree(copy_arr[i]);
     }
     kfree(copy_arr);
-    /* p_addrspace will go away when curproc is destroyed */
     return result;
   }
 
-  // copy args to user
-  for(unsigned long i = 0; i < count; i++){
-    len = strlen(copy_arr[i]) + 1;
-    stackptr = stackptr - ROUNDUP(len, 8);//? limit or valid stackptr
-    result = copyoutstr(copy_arr[i], (userptr_t)stackptr, len, NULL);
-    if(result){
-      // free
-      for(unsigned long j = i; j < count; j++){
+  /* copy the arguments into new address space */
+  for (unsigned long i = 0; i < count; ++i)
+  {
+    str_len = strlen(((char **)args)[i]) + 1;
+    stackptr = stackptr - ROUNDUP(str_len, 8);
+
+    result = copyoutstr(copy_arr[i], (userptr_t)stackptr, str_len, NULL);
+    if (result)
+    {
+      for (unsigned long j = 0; j < count; ++j)
+      {
         kfree(copy_arr[j]);
       }
       kfree(copy_arr);
