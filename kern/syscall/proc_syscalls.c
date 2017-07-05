@@ -336,16 +336,16 @@ int sys_execv(userptr_t progname, userptr_t args)
   size_t str_len = 0;
   for (unsigned long i = 0; i < count; ++i)
   {
-    str_len = strlen(((char **)args)[t]) + 1;
+    str_len = strlen(((char **)args)[i]) + 1;
 
     copy_arr[t] = kmalloc(str_len);
 
-    result = copyinstr((userptr_t)((char**)args)[t], copy_arr[t], str_len, NULL);
+    result = copyinstr((userptr_t)((char**)args)[i], copy_arr[i], str_len, NULL);
     if (result)
     {
-      for (unsigned long i = 0; i <= t; ++i)
+      for (unsigned long j = 0; j <= i; ++j)
       {
-        kfree(copy_arr[i]);
+        kfree(copy_arr[j]);
       } 
       kfree(copy_arr);
       return result;
