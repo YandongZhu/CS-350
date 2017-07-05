@@ -123,7 +123,7 @@ runprogram(char *progname)
   	//char** copy_arr = kmalloc(arr_len);
   	stackptr = stackptr - ROUNDUP(arr_len, 8);
   	result = copyout(args, (userptr_t)stackptr, arr_len);
-  	kfree(copy_arr);
+  	//kfree(copy_arr);
   	if (result)
   	{
     	return result;
