@@ -29,7 +29,7 @@
 
 #ifndef _TEST_H_
 #define _TEST_H_
-
+#include "opt-A2.h"
 /*
  * Declarations for test code and other miscellaneous high-level
  * functions.
