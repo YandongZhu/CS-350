@@ -109,6 +109,7 @@ runprogram(char *progname)
 	#ifdef OPT_A2
 	unsigned long t = 0;
 	size_t arr_len = sizeof(char *) * (nargs + 1);
+	char** copy_arr = kmalloc(arr_len);
   while (t < nargs)
   {
    	size_t str_len = strlen(args[t]) + 1;
@@ -116,14 +117,17 @@ runprogram(char *progname)
    	result = copyoutstr(args[t], (userptr_t)stackptr, str_len, NULL);
    	if (result)
    	{
+   		kfree(copy_arr)
    		return result;
    	}
+   	copy_arr[t] = (char *)stackptr;
    	++t;
   }
-  //char** copy_arr = kmalloc(arr_len);
+
+  copy_arr[nargs] = NULL;
   stackptr = stackptr - ROUNDUP(arr_len, 8);
-  result = copyout(args, (userptr_t)stackptr, arr_len);
-  //kfree(copy_arr);
+  result = copyout(copy_arr, (userptr_t)stackptr, arr_len);
+  kfree(copy_arr);
   if (result)
   {
    	return result;
