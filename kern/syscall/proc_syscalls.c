@@ -14,6 +14,7 @@
 #include <synch.h>
 #include <copyinout.h>
 #include <vfs.h>
+#include <kern/fcntl.h>
 #include "opt-A2.h"
 
   /* this implementation of sys__exit does not do anything with the exit code */
@@ -358,7 +359,7 @@ int sys_execv(userptr_t progname, userptr_t args)
   /* copy the prog path*/
   size_t path_len = strlen((char *)progname) + 1;
   char* copy_path = kmalloc(path_len);
-  if (copy_path == NULL);
+  if (copy_path == NULL)
   {
     for (unsigned long i = 0; i < count; ++i)
     {
