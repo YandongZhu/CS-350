@@ -205,6 +205,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 	tlb_random(ehi, elo);
 	splx(spl);
+	return 0;
 	#else
 	kprintf("dumbvm: Ran out of TLB entries - cannot handle page fault\n");
 	splx(spl);
