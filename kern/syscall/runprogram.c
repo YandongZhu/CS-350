@@ -102,8 +102,6 @@ runprogram(char *progname)
 		/* p_addrspace will go away when curproc is destroyed */
 		return result;
 	}
-
-	/* Warp to user mode. */
 	
 
 	#ifdef OPT_A2
@@ -134,7 +132,6 @@ runprogram(char *progname)
   }
 
   /* Warp to user mode. */
-  //userptr_t user_stack = (userptr_t)stackptr;
 
   enter_new_process(nargs /*argc*/, (userptr_t)stackptr /*userspace addr of argv*/,
         stackptr, entrypoint);
@@ -143,7 +140,7 @@ runprogram(char *progname)
 			  stackptr, entrypoint);
   #endif
 
-  	/* enter_new_process does not return. */
+  /* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
 	return EINVAL;
 }
