@@ -39,6 +39,10 @@
 #include <vm.h>
 #include <mainbus.h>
 #include <syscall.h>
+#include <proc.h>
+#include <synch.h>
+#include <addrspace.h>
+#include <kern/wait.h>
 #include "opt-A3.h"
 
 
