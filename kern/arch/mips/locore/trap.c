@@ -39,6 +39,7 @@
 #include <vm.h>
 #include <mainbus.h>
 #include <syscall.h>
+#include "opt-A3.h"
 
 
 /* in exception.S */
@@ -111,6 +112,88 @@ kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
 	/*
 	 * You will probably want to change this.
 	 */
+	#ifdef OPT_A3
+ 		struct addrspace *as;
+  	struct proc *p = curproc;
+  	/* for now, just include this to keep the compiler from complaining about
+     an unused variable */
+
+    lock_acquire(pid_control);
+
+    // current pid
+    pid_t cur_pid = p->p_pid;
+
+    // find all the children
+    struct pid_info* temp = NULL;
+    unsigned i = 0;
+    unsigned size = array_num(total_proc);
+    while(i < size)
+    {
+      temp = (struct pid_info *)array_get(total_proc, i);
+      if (temp->parent == cur_pid)
+      {
+        // child has exit already
+        if (temp->exit)
+        {
+          array_remove(total_proc, i);
+          pid_t* child_pid = &temp->current;
+          array_add(reuse_pid, child_pid, NULL);
+          pid_info_destroy(temp);
+          temp = NULL;
+          size--;
+          continue;
+        }
+        // child has not yet exit
+        else 
+        {
+          temp->parent = 0;
+        }
+      }
+      i++;
+    }
+
+    // find the current pid infomation in the proc arr
+    i = 0;
+    temp = NULL;
+    while(i < size)
+    {
+      // find the target proc
+      temp = (struct pid_info *)array_get(total_proc, i);
+      if (temp->current == cur_pid)
+      {
+        break;
+      }
+      i++;
+    }  
+
+    // if current proc has no parent
+    if (temp->parent == 0)
+    {
+      pid_t* child_pid = &temp->current;
+      array_add(reuse_pid, child_pid, NULL);
+      pid_info_destroy(temp);
+    }
+    else
+    {
+      temp->exit = 1;
+      temp->exit_code = _MKWAIT_EXIT(exitcode);
+      cv_broadcast(pid_cv, pid_control);
+    }
+    lock_release(pid_control);
+    KASSERT(curproc->p_addrspace != NULL);
+  	as_deactivate();
+
+ 		as = curproc_setas(NULL);
+  	as_destroy(as);
+
+  	proc_remthread(curthread);
+
+	  proc_destroy(p);
+  
+	  thread_exit();
+
+	#endif
+
 
 	kprintf("Fatal user mode trap %u sig %d (%s, epc 0x%x, vaddr 0x%x)\n",
 		code, sig, trapcodenames[code], epc, vaddr);
@@ -234,6 +317,13 @@ mips_trap(struct trapframe *tf)
 		if (vm_fault(VM_FAULT_READONLY, tf->tf_vaddr)==0) {
 			goto done;
 		}
+		#ifdef OPT_A3
+		else 
+		{
+			kill_curthread(tf->tf_epc, EX_MOD, tf->tf_vaddr);
+			goto done;
+		}
+		#endif
 		break;
 	case EX_TLBL:
 		if (vm_fault(VM_FAULT_READ, tf->tf_vaddr)==0) {
