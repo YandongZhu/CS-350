@@ -180,7 +180,7 @@ kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
     else
     {
       temp->exit = 1;
-      temp->exit_code = _MKWAIT_EXIT(exitcode);
+      temp->exit_code = _MKWAIT_EXIT(sig);
       cv_broadcast(pid_cv, pid_control);
     }
     lock_release(pid_control);
