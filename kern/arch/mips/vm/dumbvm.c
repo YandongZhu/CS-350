@@ -196,6 +196,11 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 		ehi = faultaddress;
 		elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
 		DEBUG(DB_VM, "dumbvm: 0x%x -> 0x%x\n", faultaddress, paddr);
+		#ifdef OPT_A3
+		if (faultaddress >= vbase1 && faultaddress < vtop1 && as->as_flag) {
+			elo &= ~TLBLO_DIRTY;
+		}
+		#endif
 		tlb_write(ehi, elo, i);
 		splx(spl);
 		return 0;
@@ -203,6 +208,9 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	#ifdef OPT_A3
 	ehi = faultaddress;
 	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+	if (faultaddress >= vbase1 && faultaddress < vtop1 && as->as_flag) {
+			elo &= ~TLBLO_DIRTY;
+		}
 	tlb_random(ehi, elo);
 	splx(spl);
 	return 0;
@@ -220,6 +228,9 @@ as_create(void)
 	if (as==NULL) {
 		return NULL;
 	}
+	#ifdef OPT_A3
+		as->as_flag = 0;
+	#endif
 
 	as->as_vbase1 = 0;
 	as->as_pbase1 = 0;
@@ -347,6 +358,10 @@ int
 as_complete_load(struct addrspace *as)
 {
 	(void)as;
+	#ifdef OPT_A3
+	as->as_flag = 1;
+	//as_activate();
+	#endif
 	return 0;
 }
 
