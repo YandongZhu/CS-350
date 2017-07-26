@@ -213,7 +213,7 @@ getppages(unsigned long npages)
 vaddr_t 
 alloc_kpages(int npages)
 {
-	paddr_t pa;
+	/*paddr_t pa;
 	#ifdef OPT_A3
 	spinlock_acquire(&coremap_lock);
 	int i = 0;
@@ -267,8 +267,8 @@ alloc_kpages(int npages)
 			}
 		}		
 	}
-	spinlock_release(&coremap_lock);
-	#else
+	spinlock_release(&coremap_lock);*/
+	//#else
 	/*#if OPT_A3
 	if(comp){
 		int is_found = 1;
@@ -306,7 +306,7 @@ alloc_kpages(int npages)
 	if (pa==0) {
 		return 0;
 	}
-	#endif
+	//#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
