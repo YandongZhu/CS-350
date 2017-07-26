@@ -53,6 +53,7 @@
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
 #ifdef OPT_A3
+static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
@@ -97,18 +98,18 @@ getppages(unsigned long npages)
 {
 	paddr_t addr;
 
-	/*if (vm_boost)
+	if (vm_boost)
 	{
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	}
 	else
-	{*/
+	{
 	spinlock_acquire(&stealmem_lock);
 
 	addr = ram_stealmem(npages);
 	
 	spinlock_release(&stealmem_lock);
-	//}
+	}
 	return addr;
 }
 
@@ -118,7 +119,7 @@ alloc_kpages(int npages)
 {
 	paddr_t pa;
 	#ifdef OPT_A3
-	spinlock_acquire(&stealmem_lock);
+	spinlock_acquire(&coremap_lock);
 	int i = 0;
 	int j = 0;
 	bool find = 1;
@@ -164,12 +165,12 @@ alloc_kpages(int npages)
 			if (i == core_frame_num)
 			{
 				free_kpages(PADDR_TO_KVADDR(pa));
-				spinlock_release(&stealmem_lock);
+				spinlock_release(&coremap_lock);
 				return ENOMEM;
 			}
 		}		
 	}
-	spinlock_release(&stealmem_lock);
+	spinlock_release(&coremap_lock);
 	#else
 	pa = getppages(npages);
 	if (pa==0) {
