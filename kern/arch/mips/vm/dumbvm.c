@@ -232,7 +232,7 @@ free_kpages(vaddr_t addr)
 {
 	/* nothing - leak the memory. */
 
-	#ifdef OPT_A3
+	/*#ifdef OPT_A3
 
 	spinlock_acquire(&stealmem_lock);
 
@@ -249,7 +249,7 @@ free_kpages(vaddr_t addr)
 		core_map[i] = 0;
 	}
 	spinlock_release(&stealmem_lock);
-	#endif
+	#endif*/
 
 	(void)addr;
 }
