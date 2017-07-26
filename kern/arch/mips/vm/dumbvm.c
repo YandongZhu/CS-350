@@ -130,7 +130,8 @@ paddr_t
 getppages(unsigned long npages)
 {
 	paddr_t addr;
-	#if OPT_A3
+
+#if OPT_A3
 	if(comp){
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	} else {
@@ -140,13 +141,13 @@ getppages(unsigned long npages)
 	
 		spinlock_release(&stealmem_lock);
 	}
-	#else
+#else
 	spinlock_acquire(&stealmem_lock);
 
 	addr = ram_stealmem(npages);
 	
 	spinlock_release(&stealmem_lock);
-	#endif
+#endif
 	return addr;
 }
 
@@ -154,8 +155,6 @@ getppages(unsigned long npages)
 vaddr_t 
 alloc_kpages(int npages)
 {
-	paddr_t pa;
-	#if OPT_A3
 	/*if(vm_boost)
 	{
 		bool find = 1;
@@ -187,7 +186,9 @@ alloc_kpages(int npages)
 			find = 1;
 		}
 	} */
-		if(comp){
+	paddr_t pa;
+	#if OPT_A3
+	if(comp){
 		int is_found = 1;
 		if(npages == 0) return 0;
 
@@ -218,12 +219,11 @@ alloc_kpages(int npages)
 		spinlock_release(&coremap_lock);
 		return 0;
 	}
-	#else
+#endif
 	pa = getppages(npages);
 	if (pa==0) {
 		return 0;
 	}
-	#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
