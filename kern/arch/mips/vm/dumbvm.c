@@ -338,7 +338,7 @@ free_kpages(vaddr_t addr)
 
 	spinlock_acquire(&stealmem_lock);
 
-	paddr_t p_addr = KVADDR_TO_PADDR(addr);
+	paddr_t p_addr = addr - MIPS_KSEG0;
 
 	// find the start frame 
 	int start_frame = (p_addr - p_base) / PAGE_SIZE;
