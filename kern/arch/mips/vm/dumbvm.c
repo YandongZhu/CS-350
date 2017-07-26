@@ -299,7 +299,7 @@ free_kpages(vaddr_t addr)
 	int j = 0;
 	while (core_map[i] != -1)
 	{
-		j = core_map[i]
+		j = core_map[i];
 		core_map[i] = 0;
 		i = j;
 	}
