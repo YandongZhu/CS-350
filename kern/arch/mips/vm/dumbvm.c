@@ -76,7 +76,7 @@ vm_bootstrap(void)
 	core_frame_num = (p_top - p_base) / PAGE_SIZE;
 
 	// core map frams
-	int core_num = total_num * sizeof(int) / PAGE_SIZE + 1;
+	int core_num = core_frame_num * sizeof(int) / PAGE_SIZE + 1;
 
 	// update start location
 	p_base = p_base + core_num * PAGE_SIZE;
