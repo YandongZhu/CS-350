@@ -193,7 +193,7 @@ getppages(unsigned long npages)
 		spinlock_acquire(&stealmem_lock);
 		while(i < core_frame_num)
 		{
-			for(int j = i; j < i + npages; j++)
+			for(int j = i; j < i + (int)npages; j++)
 			{
 				if(core_map[j] != 0)
 				{
@@ -205,8 +205,8 @@ getppages(unsigned long npages)
 
 			if(find)
 			{
-				core_map[i] = npages;
-				for(int j = i + 1; j < i + npages; j++)
+				core_map[i] = (int)npages;
+				for(int j = i + 1; j < i + (int)npages; j++)
 				{
 					core_map[j] = 1;
 				}
