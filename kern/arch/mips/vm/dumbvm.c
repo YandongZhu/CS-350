@@ -197,6 +197,7 @@ alloc_kpages(int npages)
 			}
 			is_found = 1;
 		}
+	}
 	spinlock_release(&coremap_lock);
 	#else
 	pa = getppages(npages);
@@ -205,7 +206,6 @@ alloc_kpages(int npages)
 	}
 	#endif
 	return PADDR_TO_KVADDR(pa);
-	}
 }
 
 void 
