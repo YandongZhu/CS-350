@@ -268,7 +268,7 @@ alloc_kpages(int npages)
 				}
 			}
 
-
+		}
 	}
 #endif
 	pa = getppages(npages);
