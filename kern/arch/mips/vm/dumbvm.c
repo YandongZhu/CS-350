@@ -264,7 +264,6 @@ alloc_kpages(int npages)
 				return ENOMEM;
 			}*/
 		}		
-	}
 	spinlock_release(&coremap_lock);
 	#else
 	/*#if OPT_A3
