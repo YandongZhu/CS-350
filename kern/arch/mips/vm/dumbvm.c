@@ -96,33 +96,6 @@ vm_bootstrap(void)
 
 	vm_boost = 1;
 	#endif
-	/*#if OPT_A3
-
-	paddr_t endcont;
-
-	ram_getsize(&startcont, &endcont);
-	
-	coremap = (int *)PADDR_TO_KVADDR(startcont);
-
-	// total frames available
-	num = (endcont - startcont) / PAGE_SIZE;
-
-	// num of frames for core map
-	int nfcore = num * 4 / PAGE_SIZE + 1;
-
-	// real content start location
-	startcont = startcont + nfcore * PAGE_SIZE;
-	num = num - nfcore;
-
-	KASSERT(coremap != NULL);
-	// initialize core map
-	for(int i = 0; i < num; i++){
-		coremap[i] = 0;
-	}
-
-	// flag vmboost done
-	comp = 1;
-#endif*/
 }
 
 static
@@ -155,78 +128,10 @@ getppages(unsigned long npages)
 vaddr_t 
 alloc_kpages(int npages)
 {
-	/*if(vm_boost)
-	{
-		bool find = 1;
-		int i = 0;
-		spinlock_acquire(&stealmem_lock);
-		while(i < core_frame_num)
-		{
-			for(int j = i; j < i + (int)npages; j++)
-			{
-				if(core_map[j] != 0)
-				{
-					i = j + 1;
-					find = 0;
-					break;
-				}
-			}
-
-			if(find)
-			{
-				core_map[i] = (int)npages;
-				for(int j = i + 1; j < i + (int)npages; j++)
-				{
-					core_map[j] = 1;
-				}
-				pa = p_base + i * PAGE_SIZE;
-				spinlock_release(&stealmem_lock);
-				return PADDR_TO_KVADDR(pa);
-			}
-			find = 1;
-		}
-	} */
 	paddr_t pa;
 	#if OPT_A3
 	if(vm_boost)
 	{
-		/*int find = 1;
-		int i = 0;
-		if(npages == 0) return 0;
-
-		spinlock_acquire(&stealmem_lock);
-
-		KASSERT(core_map != NULL);
-
-		while(i < core_frame_num)
-		{
-			for(int j = i; j < i + (int)npages; j++)
-			{
-				if(core_map[j] != 0)
-				{
-					i = j + 1;
-					find = 0;
-					break;
-				}
-			}
-
-			if(find)
-			{
-				core_map[i] = (int)npages;
-				for(int j = i + 1; j < i + (int)npages; j++)
-				{
-					core_map[j] = 1;
-				}
-				pa = p_base + i * PAGE_SIZE;
-				spinlock_release(&stealmem_lock);
-				return PADDR_TO_KVADDR(pa);
-			}
-			find = 1;
-		}
-
-		spinlock_release(&stealmem_lock);
-		return 0;*/
-
 		int i = 0;
 		int j = 0;
 		bool find = 1;
@@ -291,10 +196,6 @@ free_kpages(vaddr_t addr)
 
 	// find the start frame 
 	int start_frame = (p_addr - p_base) / PAGE_SIZE;
-	//int length = core_map[start_frame];
-	//int i = start_frame;
-	//int j = 0;
-	// find the length
 	int i = start_frame;
 	int j = 0;
 	while (core_map[i] != -1)
