@@ -52,26 +52,26 @@
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
-/*#ifdef OPT_A3
+#ifdef OPT_A3
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
 static bool vm_boost = 0;
-#endif*/
-#if OPT_A3
+#endif
+/*#if OPT_A3
 static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int *coremap;
 static paddr_t startcont;
 static int num;
 static int comp = 0;
-#endif
+#endif*/
 
 
 void
 vm_bootstrap(void)
 {
 	/* Do nothing. */
-	/*#ifdef OPT_A3
+	#ifdef OPT_A3
 	// get the remaining place of mem
 	ram_getsize(&p_base, &p_top);
 
@@ -95,8 +95,8 @@ vm_bootstrap(void)
 	}
 
 	vm_boost = 1;
-	#endif*/
-	#if OPT_A3
+	#endif
+	/*#if OPT_A3
 
 	paddr_t endcont;
 
@@ -122,7 +122,7 @@ vm_bootstrap(void)
 
 	// flag vmboost done
 	comp = 1;
-#endif
+#endif*/
 }
 
 static
@@ -132,7 +132,7 @@ getppages(unsigned long npages)
 	paddr_t addr;
 
 #if OPT_A3
-	if(comp){
+	if(vm_boost){
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	} else {
 		spinlock_acquire(&stealmem_lock);
@@ -188,35 +188,35 @@ alloc_kpages(int npages)
 	} */
 	paddr_t pa;
 	#if OPT_A3
-	if(comp){
+	if(vm_boost){
 		int is_found = 1;
 		if(npages == 0) return 0;
 
-		spinlock_acquire(&coremap_lock);
+		spinlock_acquire(&stealmem_lock);
 
-		KASSERT(coremap != NULL);
+		KASSERT(core_map != NULL);
 
-		for(int i = 0; i < num; i++){
+		for(int i = 0; i < core_frame_num; i++){
 			for(int j = i; j < i + npages; j++){
-				if(coremap[j] != 0){
+				if(core_map[j] != 0){
 					is_found = 0;
 					break;
 				}
 			}
 			if(is_found){
-				coremap[i] = npages;
+				core_map[i] = npages;
 				for(int j = i + 1; j < i + npages; j++){
-					coremap[j] = 1;
+					core_map[j] = 1;
 				}
-				pa = startcont + i * PAGE_SIZE;
-				spinlock_release(&coremap_lock);
+				pa = p_base + i * PAGE_SIZE;
+				spinlock_release(&stealmem_lock);
 			
 				return PADDR_TO_KVADDR(pa);
 			}
 			is_found = 1;
 		}
 
-		spinlock_release(&coremap_lock);
+		spinlock_release(&stealmem_lock);
 		return 0;
 	}
 #endif
