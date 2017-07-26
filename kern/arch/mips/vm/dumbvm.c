@@ -171,12 +171,12 @@ alloc_kpages(int npages)
 		}		
 	}
 	spinlock_release(&stealmem_lock);
-	return PADDR_TO_KVADDR(pa);
 	#else
 	pa = getppages(npages);
 	if (pa==0) {
 		return 0;
 	}
+	#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
