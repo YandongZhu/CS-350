@@ -119,7 +119,7 @@ alloc_kpages(int npages)
 {
 	paddr_t pa;
 	#ifdef OPT_A3
-	spinlock_acquire(&coremap_lock);
+	/*spinlock_acquire(&coremap_lock);
 	int i = 0;
 	int j = 0;
 	bool find = 1;
@@ -169,7 +169,34 @@ alloc_kpages(int npages)
 				return ENOMEM;
 			}
 		}		
-	}
+	}*/
+	if(vm_boost){
+		int is_found = 1;
+		if(npages == 0) return 0;
+
+		spinlock_acquire(&coremap_lock);
+
+		KASSERT(core_map != NULL);
+
+		for(int i = 0; i < core_frame_num; i++){
+			for(int j = i; j < i + npages; j++){
+				if(core_map[j] != 0){
+					is_found = 0;
+					break;
+				}
+			}
+			if(is_found){
+				core_map[i] = npages;
+				for(int j = i + 1; j < i + npages; j++){
+					core_map[j] = 1;
+				}
+				pa = p_base + i * PAGE_SIZE;
+				spinlock_release(&coremap_lock);
+			
+				return PADDR_TO_KVADDR(pa);
+			}
+			is_found = 1;
+		}
 	spinlock_release(&coremap_lock);
 	#else
 	pa = getppages(npages);
