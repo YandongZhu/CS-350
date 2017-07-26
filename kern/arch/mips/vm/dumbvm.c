@@ -254,6 +254,7 @@ alloc_kpages(int npages)
 						core_map[i] = j;
 						i = j;
 						npages--;
+						break;
 					}
 				}
 			}
