@@ -175,7 +175,7 @@ getppages(unsigned long npages)
 				}
 			}
 			// if non mem
-			/*if (i == core_frame_num)
+			if (i == core_frame_num)
 			{
 				free_kpages(PADDR_TO_KVADDR(addr));
 				spinlock_release(&coremap_lock);
