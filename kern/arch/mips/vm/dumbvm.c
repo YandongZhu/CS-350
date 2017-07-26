@@ -190,6 +190,7 @@ alloc_kpages(int npages)
 	#if OPT_A3
 	if(vm_boost){
 		int find = 1;
+		int i = 0;
 		if(npages == 0) return 0;
 
 		spinlock_acquire(&stealmem_lock);
