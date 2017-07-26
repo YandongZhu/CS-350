@@ -98,6 +98,9 @@ getppages(unsigned long npages)
 {
 	paddr_t addr;
 	#ifdef OPT_A3
+	int i = 0;
+	int j = 0;
+	bool find = 1;
 	spinlock_acquire(&stealmem_lock);
 	if (vm_boost)
 	{
@@ -138,12 +141,12 @@ getppages(unsigned long npages)
 				}
 			}
 			// if non mem
-			if (i == core_frame_num)
+			/*if (i == core_frame_num)
 			{
-				free_kpages(PADDR_TO_KVADDR(pa));
+				free_kpages(PADDR_TO_KVADDR(addr));
 				spinlock_release(&coremap_lock);
 				return ENOMEM;
-			}
+			}*/
 		}		
 	}
 	spinlock_release(&stealmem_lock);
