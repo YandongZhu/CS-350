@@ -186,7 +186,7 @@ getppages(unsigned long npages)
 	spinlock_release(&stealmem_lock);*/
 	//#else
 	#if OPT_A3
-	if(comp){
+	if(vm_boost){
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	} else {
 		spinlock_acquire(&stealmem_lock);
