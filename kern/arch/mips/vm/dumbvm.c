@@ -73,7 +73,7 @@ vm_bootstrap(void)
 	core_map = (int*)PADDR_TO_KVADDR(p_base);
 
 	// total available frame
-	int total_num = (p_base - p_top) / PAGE_SIZE;
+	int total_num = (p_top - p_base) / PAGE_SIZE;
 
 	// core map frams
 	core_frame_num = total_num * sizeof(int) / PAGE_SIZE + 1;
