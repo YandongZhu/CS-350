@@ -186,39 +186,15 @@ getppages(unsigned long npages)
 	spinlock_release(&stealmem_lock);*/
 	//#else
 	#if OPT_A3
-	if(vm_boost)
-	{
-		bool find = 1;
-		int i = 0;
+	if(vm_boost){
+		addr = alloc_kpages(npages) - MIPS_KSEG0;
+	} else {
 		spinlock_acquire(&stealmem_lock);
-		while(i < core_frame_num)
-		{
-			for(int j = i; j < i + (int)npages; j++)
-			{
-				if(core_map[j] != 0)
-				{
-					i = j + 1;
-					find = 0;
-					break;
-				}
-			}
 
-			if(find)
-			{
-				core_map[i] = (int)npages;
-				for(int j = i + 1; j < i + (int)npages; j++)
-				{
-					core_map[j] = 1;
-				}
-				addr = p_base + i * PAGE_SIZE;
-				//spinlock_release(&coremap_lock);
-				break;
-			}
-			find = 1;
-		}
-
+		addr = ram_stealmem(npages);
+	
 		spinlock_release(&stealmem_lock);
-	} 
+	}
 	#else
 	//{
 	spinlock_acquire(&stealmem_lock);
@@ -236,6 +212,7 @@ vaddr_t
 alloc_kpages(int npages)
 {
 	paddr_t pa;
+
 	/*#ifdef OPT_A3
 	spinlock_acquire(&coremap_lock);
 	int i = 0;
@@ -321,11 +298,46 @@ alloc_kpages(int npages)
 		return 0;
 	}
 	#endif*/
+	#if OPT_A3
+	if(vm_boost)
+	{
+		bool find = 1;
+		int i = 0;
+		spinlock_acquire(&stealmem_lock);
+		while(i < core_frame_num)
+		{
+			for(int j = i; j < i + (int)npages; j++)
+			{
+				if(core_map[j] != 0)
+				{
+					i = j + 1;
+					find = 0;
+					break;
+				}
+			}
+
+			if(find)
+			{
+				core_map[i] = (int)npages;
+				for(int j = i + 1; j < i + (int)npages; j++)
+				{
+					core_map[j] = 1;
+				}
+				pa = p_base + i * PAGE_SIZE;
+				spinlock_release(&coremap_lock);
+				return PADDR_TO_KVADDR(pa);
+			}
+			find = 1;
+		}
+
+		//spinlock_release(&stealmem_lock);
+	} 
+	#else
 	pa = getppages(npages);
 	if (pa==0) {
 		return 0;
 	}
-	//#endif
+	#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
