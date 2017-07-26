@@ -160,7 +160,7 @@ alloc_kpages(int npages)
 {
 	paddr_t pa;
 	#if OPT_A3
-	if(vm_boost)
+	if(comp)
 	{
 		int is_found = 1;
 		if(npages == 0) return 0;
