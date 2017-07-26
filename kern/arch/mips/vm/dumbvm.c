@@ -219,12 +219,11 @@ alloc_kpages(int npages)
 	int i = 0;
 	int j = 0;
 	bool find = 1;
+	int page_count = 0;
 	if (vm_boost)
 	{
-		while (npages > 0)
+		while (i < core_frame_num)
 		{
-			if (i < core_frame_num)
-			{
 				// if the address is unavailable
 				if (core_map[i] != 0)
 				{
@@ -241,9 +240,8 @@ alloc_kpages(int npages)
 					find = 0;
 				}
 				// if it is the last page
-				if (npages == 1)
+				if (page_count + 1 == npages)
 				{
-					npages--;
 					break;
 				}
 				// find the next available place
@@ -253,18 +251,18 @@ alloc_kpages(int npages)
 					{
 						core_map[i] = j;
 						i = j;
-						npages--;
+						page_count++;
 						break;
 					}
 				}
 			}
 			// if non mem
-			if (i >= core_frame_num)
+			/*if (i >= core_frame_num)
 			{
 				free_kpages(PADDR_TO_KVADDR(pa));
 				spinlock_release(&coremap_lock);
 				return ENOMEM;
-			}
+			}*/
 		}		
 	}
 	spinlock_release(&coremap_lock);
