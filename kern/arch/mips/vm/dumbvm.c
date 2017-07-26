@@ -54,7 +54,7 @@ static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
 #ifdef OPT_A3
 static int* core_map;
-static int* core_frame_num;
+static int core_frame_num;
 static paddr_t p_base, p_top;
 static bool vm_boost = 0;
 #endif
