@@ -283,7 +283,7 @@ free_kpages(vaddr_t addr)
 {
 	/* nothing - leak the memory. */
 
-	/*#ifdef OPT_A3
+	#ifdef OPT_A3
 
 	spinlock_acquire(&stealmem_lock);
 
@@ -291,16 +291,21 @@ free_kpages(vaddr_t addr)
 
 	// find the start frame 
 	int start_frame = (p_addr - p_base) / PAGE_SIZE;
-	int length = core_map[start_frame];
+	//int length = core_map[start_frame];
 	//int i = start_frame;
 	//int j = 0;
 	// find the length
-	for (int i = start_frame; i < start_frame + length; ++i)
+	int i = start_frame;
+	int j = 0;
+	while (core_map[i] != -1)
 	{
+		j = core_map[i]
 		core_map[i] = 0;
+		i = j;
 	}
+	core_map[i] = 0;
 	spinlock_release(&stealmem_lock);
-	#endif*/
+	#endif
 
 	(void)addr;
 }
