@@ -53,7 +53,7 @@
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
 #ifdef OPT_A3
-static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
+//static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
@@ -213,8 +213,8 @@ getppages(unsigned long npages)
 vaddr_t 
 alloc_kpages(int npages)
 {
-	/*paddr_t pa;
-	#ifdef OPT_A3
+	paddr_t pa;
+	/*#ifdef OPT_A3
 	spinlock_acquire(&coremap_lock);
 	int i = 0;
 	int j = 0;
