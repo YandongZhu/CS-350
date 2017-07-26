@@ -188,8 +188,9 @@ alloc_kpages(int npages)
 	} */
 	paddr_t pa;
 	#if OPT_A3
-	if(vm_boost){
-		int find = 1;
+	if(vm_boost)
+	{
+		/*int find = 1;
 		int i = 0;
 		if(npages == 0) return 0;
 
@@ -208,7 +209,7 @@ alloc_kpages(int npages)
 					break;
 				}
 			}
-			
+
 			if(find)
 			{
 				core_map[i] = (int)npages;
@@ -224,7 +225,50 @@ alloc_kpages(int npages)
 		}
 
 		spinlock_release(&stealmem_lock);
-		return 0;
+		return 0;*/
+
+		int i = 0;
+		int j = 0;
+		bool find = 1;
+		spinlock_acquire(&stealmem_lock);
+		while (npages > 0)
+		{
+			if (i < core_frame_num)
+			{
+				// if the address is unavailable
+				if (core_map[i] != 0)
+				{
+					++i;
+					continue;
+				}
+				// set to terminal first
+				core_map[i] = -1;
+				// first find the address
+				if (find)
+				{
+					addr = p_base + i * PAGE_SIZE;
+					find = 0;
+				}
+				// if it is the last page
+				if (npages == 1)
+				{
+					spinlock_release(&stealmem_lock);
+					return PADDR_TO_KVADDR(pa);
+				}
+				// find the next available place
+				for (j = i + 1; j < core_frame_num; ++j)
+				{
+					if (core_map[j] == 0)
+					{
+						core_map[i] = j;
+						i = j;
+						npages--;
+						break;
+					}
+				}
+			}
+
+
 	}
 #endif
 	pa = getppages(npages);
