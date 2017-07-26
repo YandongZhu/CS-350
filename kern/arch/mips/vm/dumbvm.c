@@ -266,7 +266,7 @@ alloc_kpages(int npages)
 	}*/
 	//spinlock_release(&coremap_lock);
 	//#else
-	#if OPT_A3
+	/*#if OPT_A3
 	if(comp){
 		int is_found = 1;
 		if(npages == 0) return 0;
@@ -298,7 +298,7 @@ alloc_kpages(int npages)
 		spinlock_release(&coremap_lock);
 		return 0;
 	}
-	#endif
+	#endif*/
 	pa = getppages(npages);
 	if (pa==0) {
 		return 0;
