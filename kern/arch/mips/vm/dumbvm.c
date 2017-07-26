@@ -97,12 +97,57 @@ paddr_t
 getppages(unsigned long npages)
 {
 	paddr_t addr;
-
+	#ifdef OPT_A3
+	spinlock_acquire(&stealmem_lock);
 	if (vm_boost)
 	{
-		addr = alloc_kpages(npages) - MIPS_KSEG0;
+		while (npages > 0)
+		{
+			while (i < core_frame_num)
+			{
+				// if the address is unavailable
+				if (core_map[i] != 0)
+				{
+					++i;
+					continue;
+				}
+
+				// set to terminal first
+				core_map[i] = -1;
+				// first find the address
+				if (find)
+				{
+					addr = p_base + i * PAGE_SIZE;
+					find = 0;
+				}
+				// if it is the last page
+				if (npages == 1)
+				{
+					core_map[i] = -1;
+					break;
+				}
+				// find the next available place
+				for (j = i + 1; j < core_frame_num; ++j)
+				{
+					if (core_map[j] == 0)
+					{
+						core_map[i] = j;
+						i = j;
+						npages--;
+					}
+				}
+			}
+			// if non mem
+			if (i == core_frame_num)
+			{
+				free_kpages(PADDR_TO_KVADDR(pa));
+				spinlock_release(&coremap_lock);
+				return ENOMEM;
+			}
+		}		
 	}
-	else
+	spinlock_release(&stealmem_lock);
+	#else
 	{
 	spinlock_acquire(&stealmem_lock);
 
@@ -110,6 +155,7 @@ getppages(unsigned long npages)
 	
 	spinlock_release(&stealmem_lock);
 	}
+	#endif
 	return addr;
 }
 
@@ -118,7 +164,7 @@ vaddr_t
 alloc_kpages(int npages)
 {
 	paddr_t pa;
-	#ifdef OPT_A3
+	//#ifdef OPT_A3
 	/*spinlock_acquire(&coremap_lock);
 	int i = 0;
 	int j = 0;
@@ -170,41 +216,13 @@ alloc_kpages(int npages)
 			}
 		}		
 	}*/
-	if(vm_boost){
-		int is_found = 1;
-		if(npages == 0) return 0;
-
-		spinlock_acquire(&coremap_lock);
-
-		KASSERT(core_map != NULL);
-
-		for(int i = 0; i < core_frame_num; i++){
-			for(int j = i; j < i + npages; j++){
-				if(core_map[j] != 0){
-					is_found = 0;
-					break;
-				}
-			}
-			if(is_found){
-				core_map[i] = npages;
-				for(int j = i + 1; j < i + npages; j++){
-					core_map[j] = 1;
-				}
-				pa = p_base + i * PAGE_SIZE;
-				spinlock_release(&coremap_lock);
-			
-				return PADDR_TO_KVADDR(pa);
-			}
-			is_found = 1;
-		}
-	}
 	spinlock_release(&coremap_lock);
-	#else
+	//#else
 	pa = getppages(npages);
 	if (pa==0) {
 		return 0;
 	}
-	#endif
+	//#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
