@@ -60,7 +60,7 @@ static paddr_t p_base, p_top;
 static bool vm_boost = 0;
 #endif*/
 #if OPT_A3
-static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
+//static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int *coremap;
 static paddr_t startcont;
 static int num;
