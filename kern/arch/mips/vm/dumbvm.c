@@ -88,6 +88,7 @@ vm_bootstrap(void)
 	}
 
 	vm_boost = 1;
+	#endif
 }
 
 static
