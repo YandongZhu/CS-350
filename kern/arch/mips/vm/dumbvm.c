@@ -53,7 +53,7 @@
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
 #ifdef OPT_A3
-static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
+//static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
@@ -188,15 +188,37 @@ getppages(unsigned long npages)
 	#if OPT_A3
 	if(vm_boost)
 	{
-		addr = alloc_kpages(npages) - MIPS_KSEG0;
-	} 
-	else {
+		bool find = 1;
+		int i = 0;
 		spinlock_acquire(&stealmem_lock);
+		while(i < core_frame_num)
+		{
+			for(int j = i; j < i + npages; j++)
+			{
+				if(core_map[j] != 0)
+				{
+					i = j + 1;
+					find = 0;
+					break;
+				}
+			}
 
-		addr = ram_stealmem(npages);
-	
+			if(find)
+			{
+				core_map[i] = npages;
+				for(int j = i + 1; j < i + npages; j++)
+				{
+					core_map[j] = 1;
+				}
+				addr = p_base + i * PAGE_SIZE;
+				//spinlock_release(&coremap_lock);
+				break;
+			}
+			find = 1;
+		}
+
 		spinlock_release(&stealmem_lock);
-	}
+	} 
 	#else
 	//{
 	spinlock_acquire(&stealmem_lock);
@@ -214,7 +236,7 @@ vaddr_t
 alloc_kpages(int npages)
 {
 	paddr_t pa;
-	#ifdef OPT_A3
+	/*#ifdef OPT_A3
 	spinlock_acquire(&coremap_lock);
 	int i = 0;
 	int j = 0;
@@ -257,15 +279,15 @@ alloc_kpages(int npages)
 				}
 			}
 			// if non mem
-			/*if (i >= core_frame_num)
+			if (i >= core_frame_num)
 			{
 				free_kpages(PADDR_TO_KVADDR(pa));
 				spinlock_release(&coremap_lock);
 				return ENOMEM;
-			}*/
+			}
 		}		
 	spinlock_release(&coremap_lock);
-	#else
+	#else*/
 	/*#if OPT_A3
 	if(comp){
 		int is_found = 1;
@@ -303,7 +325,7 @@ alloc_kpages(int npages)
 	if (pa==0) {
 		return 0;
 	}
-	#endif
+	//#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
@@ -312,27 +334,24 @@ free_kpages(vaddr_t addr)
 {
 	/* nothing - leak the memory. */
 
-	/*#ifdef OPT_A3
+	#ifdef OPT_A3
 
 	spinlock_acquire(&stealmem_lock);
 
-	paddr_t p_addr = addr - MIPS_KSEG0;
+	paddr_t p_addr = KVADDR_TO_PADDR(addr);
 
 	// find the start frame 
 	int start_frame = (p_addr - p_base) / PAGE_SIZE;
-
-	int i = start_frame;
-	int j = 0;
+	int length = core_map[start_frame];
+	//int i = start_frame;
+	//int j = 0;
 	// find the length
-	while (core_map[i] != -1)
+	for (int i = start_frame; i < start_frame + length; ++i)
 	{
-		j = core_map[i];
 		core_map[i] = 0;
-		i = j;
 	}
-	core_map[i] = 0;
 	spinlock_release(&stealmem_lock);
-	#endif*/
+	#endif
 
 	(void)addr;
 }
