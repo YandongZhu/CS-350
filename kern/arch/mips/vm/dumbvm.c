@@ -53,7 +53,7 @@
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
 #ifdef OPT_A3
-//static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
+static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
