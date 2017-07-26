@@ -205,6 +205,7 @@ alloc_kpages(int npages)
 	}
 	#endif
 	return PADDR_TO_KVADDR(pa);
+	}
 }
 
 void 
