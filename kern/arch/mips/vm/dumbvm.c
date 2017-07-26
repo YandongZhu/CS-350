@@ -186,9 +186,11 @@ getppages(unsigned long npages)
 	spinlock_release(&stealmem_lock);*/
 	//#else
 	#if OPT_A3
-	if(vm_boost){
+	if(vm_boost)
+	{
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
-	} else {
+	} 
+	else {
 		spinlock_acquire(&stealmem_lock);
 
 		addr = ram_stealmem(npages);
@@ -212,8 +214,8 @@ vaddr_t
 alloc_kpages(int npages)
 {
 	paddr_t pa;
-	//#ifdef OPT_A3
-	/*spinlock_acquire(&coremap_lock);
+	#ifdef OPT_A3
+	spinlock_acquire(&coremap_lock);
 	int i = 0;
 	int j = 0;
 	bool find = 1;
@@ -263,9 +265,9 @@ alloc_kpages(int npages)
 				return ENOMEM;
 			}
 		}		
-	}*/
-	//spinlock_release(&coremap_lock);
-	//#else
+	}
+	spinlock_release(&coremap_lock);
+	#else
 	/*#if OPT_A3
 	if(comp){
 		int is_found = 1;
@@ -303,7 +305,7 @@ alloc_kpages(int npages)
 	if (pa==0) {
 		return 0;
 	}
-	//endif
+	#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
