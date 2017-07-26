@@ -95,9 +95,9 @@ static
 paddr_t
 getppages(unsigned long npages)
 {
-	/*paddr_t addr;
+	paddr_t addr;
 
-	if (vm_boost)
+	/*if (vm_boost)
 	{
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	}
