@@ -52,27 +52,26 @@
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
-#ifdef OPT_A3
-//static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
+/*#ifdef OPT_A3
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
 static bool vm_boost = 0;
-#endif
-/*#if OPT_A3
+#endif*/
+#if OPT_A3
 static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int *coremap;
 static paddr_t startcont;
 static int num;
 static int comp = 0;
-#endif*/
+#endif
 
 
 void
 vm_bootstrap(void)
 {
 	/* Do nothing. */
-	#ifdef OPT_A3
+	/*#ifdef OPT_A3
 	// get the remaining place of mem
 	ram_getsize(&p_base, &p_top);
 
@@ -96,8 +95,8 @@ vm_bootstrap(void)
 	}
 
 	vm_boost = 1;
-	#endif
-	/*#if OPT_A3
+	#endif*/
+	#if OPT_A3
 
 	paddr_t endcont;
 
@@ -123,7 +122,7 @@ vm_bootstrap(void)
 
 	// flag vmboost done
 	comp = 1;
-#endif*/
+#endif
 }
 
 static
@@ -131,62 +130,8 @@ paddr_t
 getppages(unsigned long npages)
 {
 	paddr_t addr;
-	/*#ifdef OPT_A3
-	int i = 0;
-	int j = 0;
-	bool find = 1;
-	spinlock_acquire(&stealmem_lock);
-	if (vm_boost)
-	{
-		while (npages > 0)
-		{
-			while (i < core_frame_num)
-			{
-				// if the address is unavailable
-				if (core_map[i] != 0)
-				{
-					++i;
-					continue;
-				}
-
-				// set to terminal first
-				core_map[i] = -1;
-				// first find the address
-				if (find)
-				{
-					addr = p_base + i * PAGE_SIZE;
-					find = 0;
-				}
-				// if it is the last page
-				if (npages == 1)
-				{
-					core_map[i] = -1;
-					break;
-				}
-				// find the next available place
-				for (j = i + 1; j < core_frame_num; ++j)
-				{
-					if (core_map[j] == 0)
-					{
-						core_map[i] = j;
-						i = j;
-						npages--;
-					}
-				}
-			}
-			// if non mem
-			if (i == core_frame_num)
-			{
-				free_kpages(PADDR_TO_KVADDR(addr));
-				spinlock_release(&coremap_lock);
-				return ENOMEM;
-			}
-		}		
-	}
-	spinlock_release(&stealmem_lock);*/
-	//#else
 	#if OPT_A3
-	if(vm_boost){
+	if(comps){
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	} else {
 		spinlock_acquire(&stealmem_lock);
@@ -196,13 +141,11 @@ getppages(unsigned long npages)
 		spinlock_release(&stealmem_lock);
 	}
 	#else
-	//{
 	spinlock_acquire(&stealmem_lock);
 
 	addr = ram_stealmem(npages);
 	
 	spinlock_release(&stealmem_lock);
-	//}
 	#endif
 	return addr;
 }
@@ -212,61 +155,39 @@ vaddr_t
 alloc_kpages(int npages)
 {
 	paddr_t pa;
-
-	/*#ifdef OPT_A3
-	spinlock_acquire(&coremap_lock);
-	int i = 0;
-	int j = 0;
-	bool find = 1;
-	int page_count = 0;
-	if (vm_boost)
+	#if OPT_A3
+	/*if(vm_boost)
 	{
-		while (i < core_frame_num)
+		bool find = 1;
+		int i = 0;
+		spinlock_acquire(&stealmem_lock);
+		while(i < core_frame_num)
 		{
-				// if the address is unavailable
-				if (core_map[i] != 0)
+			for(int j = i; j < i + (int)npages; j++)
+			{
+				if(core_map[j] != 0)
 				{
-					++i;
-					continue;
-				}
-
-				// set to terminal first
-				core_map[i] = -1;
-				// first find the address
-				if (find)
-				{
-					pa = p_base + i * PAGE_SIZE;
+					i = j + 1;
 					find = 0;
-				}
-				// if it is the last page
-				if (page_count + 1 == npages)
-				{
 					break;
 				}
-				// find the next available place
-				for (j = i + 1; j < core_frame_num; ++j)
-				{
-					if (core_map[j] == 0)
-					{
-						core_map[i] = j;
-						i = j;
-						page_count++;
-						break;
-					}
-				}
 			}
-			// if non mem
-			if (i >= core_frame_num)
+
+			if(find)
 			{
-				free_kpages(PADDR_TO_KVADDR(pa));
-				spinlock_release(&coremap_lock);
-				return ENOMEM;
+				core_map[i] = (int)npages;
+				for(int j = i + 1; j < i + (int)npages; j++)
+				{
+					core_map[j] = 1;
+				}
+				pa = p_base + i * PAGE_SIZE;
+				spinlock_release(&stealmem_lock);
+				return PADDR_TO_KVADDR(pa);
 			}
-		}		
-	spinlock_release(&coremap_lock);
-	#else*/
-	/*#if OPT_A3
-	if(comp){
+			find = 1;
+		}
+	} */
+		if(comp){
 		int is_found = 1;
 		if(npages == 0) return 0;
 
@@ -297,41 +218,6 @@ alloc_kpages(int npages)
 		spinlock_release(&coremap_lock);
 		return 0;
 	}
-	#endif*/
-	#if OPT_A3
-	if(vm_boost)
-	{
-		bool find = 1;
-		int i = 0;
-		spinlock_acquire(&stealmem_lock);
-		while(i < core_frame_num)
-		{
-			for(int j = i; j < i + (int)npages; j++)
-			{
-				if(core_map[j] != 0)
-				{
-					i = j + 1;
-					find = 0;
-					break;
-				}
-			}
-
-			if(find)
-			{
-				core_map[i] = (int)npages;
-				for(int j = i + 1; j < i + (int)npages; j++)
-				{
-					core_map[j] = 1;
-				}
-				pa = p_base + i * PAGE_SIZE;
-				spinlock_release(&stealmem_lock);
-				return PADDR_TO_KVADDR(pa);
-			}
-			find = 1;
-		}
-
-		//spinlock_release(&stealmem_lock);
-	} 
 	#else
 	pa = getppages(npages);
 	if (pa==0) {
