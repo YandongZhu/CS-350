@@ -52,27 +52,27 @@
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
-/*#ifdef OPT_A3
-static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
+#ifdef OPT_A3
+//static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
 static bool vm_boost = 0;
-#endif*/
-#if OPT_A3
+#endif
+/*#if OPT_A3
 //static struct spinlock coremap_lock = SPINLOCK_INITIALIZER;
 static int *coremap;
 static paddr_t startcont;
 static int num;
 static int comp = 0;
-#endif
+#endif*/
 
 
 void
 vm_bootstrap(void)
 {
 	/* Do nothing. */
-	/*#ifdef OPT_A3
+	#ifdef OPT_A3
 	// get the remaining place of mem
 	ram_getsize(&p_base, &p_top);
 
@@ -96,8 +96,8 @@ vm_bootstrap(void)
 	}
 
 	vm_boost = 1;
-	#endif*/
-	#if OPT_A3
+	#endif
+	/*#if OPT_A3
 
 	paddr_t endcont;
 
@@ -123,7 +123,7 @@ vm_bootstrap(void)
 
 	// flag vmboost done
 	comp = 1;
-#endif
+#endif*/
 }
 
 static
