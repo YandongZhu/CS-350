@@ -131,7 +131,7 @@ getppages(unsigned long npages)
 {
 	paddr_t addr;
 	#if OPT_A3
-	if(comps){
+	if(comp){
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	} else {
 		spinlock_acquire(&stealmem_lock);
