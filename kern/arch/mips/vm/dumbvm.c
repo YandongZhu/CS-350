@@ -119,7 +119,6 @@ alloc_kpages(int npages)
 	paddr_t pa;
 	#ifdef OPT_A3
 	spinlock_acquire(&stealmem_lock);
-	int start = 0;
 	int i = 0;
 	int j = 0;
 	bool find = 1;
@@ -127,7 +126,7 @@ alloc_kpages(int npages)
 	{
 		while (npages > 0)
 		{
-			for (i < core_frame_num)
+			while (i < core_frame_num)
 			{
 				// if the address is unavailable
 				if (core_map[i] != 0)
@@ -162,7 +161,7 @@ alloc_kpages(int npages)
 				}
 			}
 			// if non mem
-			if (i = core_frame_num)
+			if (i == core_frame_num)
 			{
 				free_kpages(PADDR_TO_KVADDR(pa));
 				spinlock_release(&stealmem_lock);
