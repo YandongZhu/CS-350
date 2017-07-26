@@ -189,21 +189,24 @@ alloc_kpages(int npages)
 	paddr_t pa;
 	#if OPT_A3
 	if(vm_boost){
-		int is_found = 1;
+		int find = 1;
 		if(npages == 0) return 0;
 
 		spinlock_acquire(&stealmem_lock);
 
 		KASSERT(core_map != NULL);
 
-		for(int i = 0; i < core_frame_num; i++){
-			for(int j = i; j < i + npages; j++){
-				if(core_map[j] != 0){
-					is_found = 0;
+		for(int j = i; j < i + npages; j++)
+			{
+				if(core_map[j] != 0)
+				{
+					i = j + 1;
+					find = 0;
 					break;
 				}
 			}
-			if(is_found){
+
+			if(find){
 				core_map[i] = npages;
 				for(int j = i + 1; j < i + npages; j++){
 					core_map[j] = 1;
@@ -213,7 +216,7 @@ alloc_kpages(int npages)
 			
 				return PADDR_TO_KVADDR(pa);
 			}
-			is_found = 1;
+			find = 1;
 		}
 
 		spinlock_release(&stealmem_lock);
