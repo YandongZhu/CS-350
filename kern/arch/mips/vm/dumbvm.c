@@ -324,7 +324,7 @@ alloc_kpages(int npages)
 					core_map[j] = 1;
 				}
 				pa = p_base + i * PAGE_SIZE;
-				spinlock_release(&coremap_lock);
+				spinlock_release(&stealmem_lock);
 				return PADDR_TO_KVADDR(pa);
 			}
 			find = 1;
