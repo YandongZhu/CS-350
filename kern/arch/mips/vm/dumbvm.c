@@ -52,19 +52,19 @@
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
-#ifdef OPT_A3
+/*#ifdef OPT_A3
 static int* core_map;
 static int core_frame_num;
 static paddr_t p_base, p_top;
 static bool vm_boost = 0;
-#endif
+#endif*/
 
 
 void
 vm_bootstrap(void)
 {
 	/* Do nothing. */
-	#ifdef OPT_A3
+	/*#ifdef OPT_A3
 	// get the remaining place of mem
 	ram_getsize(&p_base, &p_top);
 
@@ -88,27 +88,27 @@ vm_bootstrap(void)
 	}
 
 	vm_boost = 1;
-	#endif
+	#endif*/
 }
 
 static
 paddr_t
 getppages(unsigned long npages)
 {
-	paddr_t addr;
+	/*paddr_t addr;
 
 	if (vm_boost)
 	{
 		addr = alloc_kpages(npages) - MIPS_KSEG0;
 	}
 	else
-	{
+	{*/
 	spinlock_acquire(&stealmem_lock);
 
 	addr = ram_stealmem(npages);
 	
 	spinlock_release(&stealmem_lock);
-	}
+	//}
 	return addr;
 }
 
@@ -117,7 +117,7 @@ vaddr_t
 alloc_kpages(int npages)
 {
 	paddr_t pa;
-	#ifdef OPT_A3
+	/*#ifdef OPT_A3
 	spinlock_acquire(&stealmem_lock);
 	int i = 0;
 	int j = 0;
@@ -170,12 +170,12 @@ alloc_kpages(int npages)
 		}		
 	}
 	spinlock_release(&stealmem_lock);
-	#else
+	#else*/
 	pa = getppages(npages);
 	if (pa==0) {
 		return 0;
 	}
-	#endif
+	//#endif
 	return PADDR_TO_KVADDR(pa);
 }
 
@@ -184,7 +184,7 @@ free_kpages(vaddr_t addr)
 {
 	/* nothing - leak the memory. */
 
-	#ifdef OPT_A3
+	/*#ifdef OPT_A3
 
 	spinlock_acquire(&stealmem_lock);
 
@@ -204,7 +204,7 @@ free_kpages(vaddr_t addr)
 	}
 	core_map[i] = 0;
 	spinlock_release(&stealmem_lock);
-	#endif
+	#endif*/
 
 	(void)addr;
 }
