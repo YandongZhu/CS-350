@@ -197,7 +197,9 @@ alloc_kpages(int npages)
 
 		KASSERT(core_map != NULL);
 
-		for(int j = i; j < i + npages; j++)
+		while(i < core_frame_num)
+		{
+			for(int j = i; j < i + (int)npages; j++)
 			{
 				if(core_map[j] != 0)
 				{
@@ -206,7 +208,6 @@ alloc_kpages(int npages)
 					break;
 				}
 			}
-
 			if(find){
 				core_map[i] = npages;
 				for(int j = i + 1; j < i + npages; j++){
