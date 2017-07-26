@@ -208,14 +208,16 @@ alloc_kpages(int npages)
 					break;
 				}
 			}
-			if(find){
-				core_map[i] = npages;
-				for(int j = i + 1; j < i + npages; j++){
+			
+			if(find)
+			{
+				core_map[i] = (int)npages;
+				for(int j = i + 1; j < i + (int)npages; j++)
+				{
 					core_map[j] = 1;
 				}
 				pa = p_base + i * PAGE_SIZE;
 				spinlock_release(&stealmem_lock);
-			
 				return PADDR_TO_KVADDR(pa);
 			}
 			find = 1;
