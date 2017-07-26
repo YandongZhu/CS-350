@@ -246,7 +246,7 @@ alloc_kpages(int npages)
 				// first find the address
 				if (find)
 				{
-					addr = p_base + i * PAGE_SIZE;
+					pa = p_base + i * PAGE_SIZE;
 					find = 0;
 				}
 				// if it is the last page
